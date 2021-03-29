@@ -70,12 +70,6 @@ void ShaderProgram::create(const char *vertfile, const char *fragfile)
     unifModelInvTr = context->glGetUniformLocation(prog, "u_ModelInvTr");
     unifViewProj   = context->glGetUniformLocation(prog, "u_ViewProj");
     unifColor      = context->glGetUniformLocation(prog, "u_Color");
-
-    std::cout << "-------------" << std::endl;
-    std::cout << attrPos << std::endl;
-    std::cout << attrCol << std::endl;
-    std::cout << attrNor << std::endl;
-        std::cout << "-------------" << std::endl;
 }
 
 void ShaderProgram::useMe()
