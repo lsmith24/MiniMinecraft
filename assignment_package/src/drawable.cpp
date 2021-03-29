@@ -2,8 +2,8 @@
 #include <glm_includes.h>
 
 Drawable::Drawable(OpenGLContext* context)
-    : m_count(-1), m_bufIdx(), m_bufPos(), m_bufNor(), m_bufCol(),
-      m_idxGenerated(false), m_posGenerated(false), m_norGenerated(false), m_colGenerated(false),
+    : m_count(-1), m_bufIdx(), m_bufPos(), m_bufNor(), m_bufCol(), m_bufVert(),
+      m_idxGenerated(false), m_posGenerated(false), m_norGenerated(false), m_colGenerated(false), m_vertGenerated(false),
       mp_context(context)
 {}
 
@@ -17,7 +17,8 @@ void Drawable::destroy()
     mp_context->glDeleteBuffers(1, &m_bufPos);
     mp_context->glDeleteBuffers(1, &m_bufNor);
     mp_context->glDeleteBuffers(1, &m_bufCol);
-    m_idxGenerated = m_posGenerated = m_norGenerated = m_colGenerated = false;
+    mp_context->glDeleteBuffers(1, &m_bufVert);
+    m_idxGenerated = m_posGenerated = m_norGenerated = m_colGenerated = m_vertGenerated = false;
     m_count = -1;
 }
 
@@ -65,6 +66,12 @@ void Drawable::generateCol()
     mp_context->glGenBuffers(1, &m_bufCol);
 }
 
+void Drawable::generateVert()
+{
+    m_vertGenerated = true;
+    mp_context->glGenBuffers(1, &m_bufVert);
+}
+
 bool Drawable::bindIdx()
 {
     if(m_idxGenerated) {
@@ -95,4 +102,12 @@ bool Drawable::bindCol()
         mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufCol);
     }
     return m_colGenerated;
+}
+
+bool Drawable::bindVert()
+{
+    if(m_vertGenerated){
+        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufVert);
+    }
+    return m_vertGenerated;
 }
