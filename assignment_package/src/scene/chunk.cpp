@@ -228,8 +228,16 @@ void Chunk::bufferData(const std::vector<glm::vec4> &interleaved, const std::vec
     mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdx);
     mp_context->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_count * sizeof(GLuint), idx.data(), GL_STATIC_DRAW);
 
-    generateVert();
-    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufVert);
+    generatePos();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufPos);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
+
+    generateNor();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufNor);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
+
+    generateCol();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufCol);
     mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
 }
 
@@ -258,13 +266,13 @@ void Chunk::create() {
     }
     // Create the index buffer from the interleaved VBO
     std::vector<GLuint> idx;
-    for(uint i = 0; i < interleaved.size(); ++i) {
+    for(uint i = 0; i < interleaved.size(); i +=4) {
         idx.push_back(i);
-        idx.push_back(i + 1);
-        idx.push_back(i + 2);
+        idx.push_back(i+1);
+        idx.push_back(i+2);
         idx.push_back(i);
-        idx.push_back(i + 2);
-        idx.push_back(i + 3);
+        idx.push_back(i+2);
+        idx.push_back(i+3);
     }
 
     // Upload this data to the VBO
