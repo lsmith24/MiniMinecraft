@@ -228,16 +228,10 @@ void Chunk::bufferData(const std::vector<glm::vec4> &interleaved, const std::vec
     mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdx);
     mp_context->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_count * sizeof(GLuint), idx.data(), GL_STATIC_DRAW);
 
+    // Utilizes just the position buffer for the only VBO;
+    // should probably create a separate one if it ends up matterings
     generatePos();
     mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufPos);
-    mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
-
-    generateNor();
-    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufNor);
-    mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
-
-    generateCol();
-    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufCol);
     mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
 }
 
