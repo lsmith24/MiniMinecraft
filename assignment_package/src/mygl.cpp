@@ -95,6 +95,7 @@ void MyGL::resizeGL(int w, int h) {
 void MyGL::tick() {
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
+    m_terrain.expandChunks(m_player); // Checks if more chunks need to be loaded
 }
 
 void MyGL::sendPlayerDataToGUI() const {
@@ -128,11 +129,20 @@ void MyGL::paintGL() {
     glEnable(GL_DEPTH_TEST);
 }
 
-// TODO: Change this so it renders the nine zones of generated
+// Renders the nine zones of generated
 // terrain that surround the player (refer to Terrain::m_generatedTerrain
 // for more info)
 void MyGL::renderTerrain() {
-    m_terrain.draw(0, 64, 0, 64, &m_progLambert);
+    // Draw the terrain generation zones around the current terrain generation zone
+    // As such, the zones in the unordered_set should only be ones that should be loaded
+    for(int64_t key : m_terrain.getTerrainZones()) {
+        int minX = toCoords(key)[0];
+        int minZ = toCoords(key)[1];
+        int maxX = minX + 64;
+        int maxZ = minZ + 64;
+
+        m_terrain.draw(minX, maxX, minZ, maxZ, &m_progLambert);
+    }
 }
 
 

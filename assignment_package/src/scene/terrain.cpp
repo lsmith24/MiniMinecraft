@@ -8,7 +8,10 @@ Terrain::Terrain(OpenGLContext *context)
 {}
 
 Terrain::~Terrain() {
-    // TODO: destroy chunks
+    // Destroy all chunks
+    for (const auto &c : m_chunks) {
+        c.second->destroy();
+    }
 }
 
 // Combine two 32-bit ints into one 64-bit int
@@ -114,6 +117,10 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
     }
 }
 
+std::unordered_set<int64_t> Terrain::getTerrainZones() {
+    return m_generatedTerrain;
+}
+
 Chunk* Terrain::instantiateChunkAt(int x, int z) {
     uPtr<Chunk> chunk = mkU<Chunk>(Chunk(mp_context));
     Chunk *cPtr = chunk.get();
@@ -137,6 +144,67 @@ Chunk* Terrain::instantiateChunkAt(int x, int z) {
     }
     return cPtr;
     return cPtr;
+}
+
+void Terrain::createGenericChunk(int chunk_x, int chunk_z) {
+    // Create the basic terrain floor
+    const uPtr<Chunk> &chunk = getChunkAt(chunk_x, chunk_z);
+    for(int x = 0; x < 16; ++x) {
+        for(int z = 0; z < 16; ++z) {
+            if((x + z) % 2 == 0) {
+                chunk->setBlockAt(x, 128, z, STONE);
+            }
+            else {
+                chunk->setBlockAt(x, 128, z, DIRT);
+            }
+        }
+    }
+    chunk->create();
+}
+
+// NOTE: remove the generic terrain generation when other terrain generation is implemented
+void Terrain::expandChunks(const Player &player) {
+    // Get the zone that the player is currently in
+    int player_x = static_cast<int>(glm::floor(player.mcr_position[0] / 64.f) * 64);
+    int player_z = static_cast<int>(glm::floor(player.mcr_position[2] / 64.f) * 64);
+
+    // Check if all terrain generation zones loaded are still within range.
+    // Remove zones out of range from the set
+    for(int64_t key : m_generatedTerrain) {
+        int zone_x = toCoords(key)[0];
+        int zone_z = toCoords(key)[1];
+
+        if (zone_x > player_x + 64 || zone_x < player_x - 64 || zone_z > player_z + 64 || zone_z < player_z - 64) {
+            // Remove the zone
+            m_generatedTerrain.erase(key);
+        }
+    }
+
+    // Add new terrain zones if needed
+    if (m_generatedTerrain.size() < 9) {
+        for(int x = -64; x <= 64; x +=64) {
+            for(int z = -64; z <= 64; z += 64) {
+                int new_x = player_x + x;
+                int new_z = player_z + z;
+                // If the key is not in the set, add it and generate the new terrain zone
+                if (m_generatedTerrain.count(toKey(player_x + x, player_z + z)) <= 0) {
+                   m_generatedTerrain.insert(toKey(player_x + x, player_z + z));
+                   // Check / create the 16 chunks of the zone
+                   // If chunks are created indepently of a terrain zone,
+                   // a check should be added to ensure a chunk is not instaniated
+                   // multiple times
+                   if(!hasChunkAt(new_x, new_z)) {
+                       for(int x2 = 0; x2 < 64; x2 += 16) {
+                           for(int z2 = 0; z2 < 64; z2 += 16) {
+                               instantiateChunkAt(new_x + x2, new_z + z2);
+                               createGenericChunk(new_x + x2, new_z + z2);
+                           }
+                       }
+                   }
+                }
+            }
+        }
+    }
 }
 
 void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shaderProgram) {

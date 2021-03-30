@@ -1,4 +1,8 @@
 #pragma once
+
+// Forward declaration for Player class
+class Terrain;
+
 #include "smartpointerhelp.h"
 #include "glm_includes.h"
 #include "chunk.h"
@@ -7,9 +11,7 @@
 #include <unordered_set>
 #include "shaderprogram.h"
 #include "cube.h"
-
-
-//using namespace std;
+#include "scene/player.h"
 
 // Helper functions to convert (x, z) to and from hash map key
 int64_t toKey(int x, int z);
@@ -70,6 +72,16 @@ public:
     // values) set the block at that point in space to the
     // given type.
     void setBlockAt(int x, int y, int z, BlockType t);
+
+    std::unordered_set<int64_t> getTerrainZones();
+
+    // TODO: used to test chunk expansion; should be
+    // removed / changed when terrain generation implemented
+    void createGenericChunk(int x, int z);
+
+    // Updates the chunks that are rendered based on how close
+    // the player is to them.
+    void expandChunks(const Player &player);
 
     // Draws every Chunk that falls within the bounding box
     // described by the min and max coords, using the provided

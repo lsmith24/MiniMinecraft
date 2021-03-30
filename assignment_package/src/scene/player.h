@@ -1,7 +1,12 @@
 #pragma once
+
+// Forward declaration for Terrain class
+class Player;
+
 #include "entity.h"
 #include "camera.h"
 #include "terrain.h"
+
 
 class Player : public Entity {
 private:
