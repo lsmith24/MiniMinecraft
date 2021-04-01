@@ -2,6 +2,7 @@
 #include "cube.h"
 #include <stdexcept>
 #include <iostream>
+#include "math.h"
 
 Terrain::Terrain(OpenGLContext *context)
     : m_chunks(), m_generatedTerrain(),  mp_context(context)
@@ -151,12 +152,13 @@ void Terrain::createGenericChunk(int chunk_x, int chunk_z) {
     const uPtr<Chunk> &chunk = getChunkAt(chunk_x, chunk_z);
     for(int x = 0; x < 16; ++x) {
         for(int z = 0; z < 16; ++z) {
-            if((x + z) % 2 == 0) {
-                chunk->setBlockAt(x, 128, z, STONE);
-            }
-            else {
-                chunk->setBlockAt(x, 128, z, DIRT);
-            }
+//            if((x + z) % 2 == 0) {
+//                chunk->setBlockAt(x, 128, z, STONE);
+//            }
+//            else {
+//                chunk->setBlockAt(x, 128, z, DIRT);
+//            }
+            createBlock(x, z);
         }
     }
     chunk->create();
@@ -210,9 +212,11 @@ void Terrain::expandChunks(const Player &player) {
 void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shaderProgram) {
     for(int x = minX; x < maxX; x += 16) {
         for(int z = minZ; z < maxZ; z += 16) {
-            const uPtr<Chunk> &chunk = getChunkAt(x, z);
-            shaderProgram->setModelMatrix(glm::translate(glm::mat4(), glm::vec3(x, 0, z)));
-            shaderProgram->drawInterleaved(*chunk);
+            if (hasChunkAt(x, z)) {
+               const uPtr<Chunk> &chunk = getChunkAt(x, z);
+               shaderProgram->setModelMatrix(glm::translate(glm::mat4(), glm::vec3(x, 0, z)));
+               shaderProgram->drawInterleaved(*chunk);
+            }
         }
     }
 }
@@ -235,28 +239,147 @@ void Terrain::CreateTestScene()
     // Create the basic terrain floor
     for(int x = 0; x < 64; ++x) {
         for(int z = 0; z < 64; ++z) {
-            if((x + z) % 2 == 0) {
-                setBlockAt(x, 128, z, STONE);
-            }
-            else {
-                setBlockAt(x, 128, z, DIRT);
-            }
+//            if((x + z) % 2 == 0) {
+//                setBlockAt(x, 128, z, STONE);
+//            }
+//            else {
+//                setBlockAt(x, 128, z, DIRT);
+//            }
+            createBlock(x, z);
         }
     }
     // Add "walls" for collision testing
-    for(int x = 0; x < 64; ++x) {
-        setBlockAt(x, 129, 0, GRASS);
-        setBlockAt(x, 130, 0, GRASS);
-        setBlockAt(x, 129, 63, GRASS);
-        setBlockAt(0, 130, x, GRASS);
-    }
-    // Add a central column
-    for(int y = 129; y < 140; ++y) {
-        setBlockAt(32, y, 32, GRASS);
-    }
+//    for(int x = 0; x < 64; ++x) {
+//        setBlockAt(x, 129, 0, GRASS);
+//        setBlockAt(x, 130, 0, GRASS);
+//        setBlockAt(x, 129, 63, GRASS);
+//        setBlockAt(0, 130, x, GRASS);
+//    }
+//    // Add a central column
+//    for(int y = 129; y < 140; ++y) {
+//        setBlockAt(32, y, 32, GRASS);
+//    }
 
     // Build all of the chunks
     for (const auto &c : m_chunks) {
         c.second->create();
     }
 }
+
+//Perlin noise helper functions
+glm::vec2 Terrain::random2(glm::vec2 p) {
+    return glm::fract(glm::sin(glm::vec2(glm::dot(p, glm::vec2(123.4, 321.7)), glm::dot(p, glm::vec2(258.1, 195.3)))) * 2343524.545324f);
+}
+
+float Terrain::surflet(glm::vec2 p, glm::vec2 gridPt) {
+    glm::vec2 t2 = glm::abs(p - gridPt);
+    glm::vec2 t = glm::vec2(1.f) - 6.f * glm::pow(t2, glm::vec2(5.f)) + 15.f * glm::pow(t2, glm::vec2(4.f)) - 10.f * glm::pow(t2, glm::vec2(3.f));
+    glm::vec2 gradient = random2(gridPt) * 2.f - glm::vec2(1, 1);
+    glm::vec2 diff = p - gridPt;
+    float height = glm::dot(diff, gradient);
+    return height * t.x * t.y;
+}
+
+//Perlin noise
+float Terrain::perlin(glm::vec2 uv) {
+    float surfletSum = 0.f;
+    for(int dx = 0; dx <= 1; dx++) {
+        for(int dy = 0; dy <= 1; dy++) {
+            surfletSum += surflet(uv, glm::floor(uv) + glm::vec2(dx, dy));
+        }
+    }
+    return surfletSum;
+}
+
+//Worley noise
+float Terrain::worley(glm::vec2 uv) {
+    uv = uv * 2.f;
+    glm::vec2 uvInt = glm::floor(uv);
+    glm::vec2 uvFract = glm::fract(uv);
+    float minDist = 1.f;
+
+    for (int y = -1; y <= 1; y++) {
+        for (int x  =-1; x <= 1; x++) {
+            glm::vec2 neighbor = glm::vec2(float(x), float(y));
+            glm::vec2 point = random2(uvInt + neighbor);
+            glm::vec2 diff = neighbor + point - uvFract;
+            float dist = glm::length(diff);
+            minDist = glm::min(minDist, dist);
+        }
+    }
+    return minDist;
+}
+
+float Terrain::noise1D(int x) {
+    return glm::fract(glm::sin(glm::dot(glm::vec2(x, x * 123456432), glm::vec2(124.3, 235.5))) * 213454.54343);
+}
+
+float Terrain::interpNoise1D(float x) {
+    int intX = int(floor(x));
+    float fractX = glm::fract(x);
+
+    float v1 = noise1D(intX);
+    float v2 = noise1D(intX + 1);
+    return glm::mix(v1, v2, fractX);
+}
+
+float Terrain::fbm(float x) {
+    float total = 0;
+    float persistence = 0.5f;
+    int octaves = 8;
+
+    for(int i = 1; i <= octaves; i++) {
+        float freq = pow(2.f, i);
+        float amp = pow(persistence, i);
+
+        total += interpNoise1D(x * freq) * amp;
+    }
+    return total;
+}
+
+int Terrain::grassHeight(int x, int z) {
+    float noise = worley(glm::vec2(x / 64.f, z / 64.f));
+    return 129 + noise * 127 / 2 + 5;
+}
+
+int Terrain::mountainHeight(int x, int z) {
+    float noise = perlin(glm::vec2(x / 32.f, z / 32.f));
+    noise = glm::smoothstep(0.25, 0.75, double(noise));
+    noise = pow(noise, 2);
+    return noise * 127 + 129;
+}
+
+void Terrain::createBlock(int x, int z) {
+    int grHeight = grassHeight(x, z);
+    int mtHeight = mountainHeight(x, z);
+
+    float pn = perlin(glm::vec2(x / 256.f, z / 256.f));
+    pn = glm::smoothstep(0.3, 0.7, double(pn));
+    int lerp = int((1 - pn) * grHeight + pn * mtHeight);
+
+    //grass
+    if (pn > 0.7) {
+        for (int i = 0; i < lerp; i++) {
+            if (i == lerp - 1) {
+                setBlockAt(x, i, z, GRASS);
+            } else if (i <= 128) {
+                setBlockAt(x, i, z, STONE);
+            } else {
+                setBlockAt(x, i, z, DIRT);
+            }
+        }
+    }
+    else {
+       //mountains
+        for (int i = 0; i < lerp; i++) {
+            if (i == lerp -1 && lerp > 200) {
+                setBlockAt(x, i, z, SNOW);
+            } else {
+                setBlockAt(x, i, z, STONE);
+            }
+        }
+    }
+}
+
+
+

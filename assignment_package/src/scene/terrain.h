@@ -91,4 +91,16 @@ public:
     // Initializes the Chunks that store the 64 x 256 x 64 block scene you
     // see when the base code is run.
     void CreateTestScene();
+
+    glm::vec2 random2(glm::vec2 p);
+    float surflet(glm::vec2 p, glm::vec2 gridPt);
+    float perlin(glm::vec2 uv);
+    float worley(glm::vec2 uv);
+    float noise1D(int x);
+    float interpNoise1D(float x);
+    float fbm(float x);
+    int grassHeight(int x, int z);
+    int mountainHeight(int x, int z);
+    void createBlock(int x, int z);
+
 };
