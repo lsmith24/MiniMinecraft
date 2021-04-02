@@ -79,6 +79,7 @@ public:
     // values) set the block at that point in space to the
     // given type.
     void setBlockAt(int x, int y, int z, BlockType t);
+    void recreateChunk(int x, int y);
 
     // Draws every Chunk that falls within the bounding box
     // described by the min and max coords, using the provided

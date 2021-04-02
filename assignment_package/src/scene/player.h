@@ -7,22 +7,36 @@ class Player : public Entity {
 private:
     glm::vec3 m_velocity, m_acceleration;
     Camera m_camera;
-    const Terrain &mcr_terrain;
+    Terrain &mcr_terrain;
+    bool inFlight;
+    bool jumping;
+    bool createBlock;
+    bool destroyBlock;
+
+   // bool triggerFlight;
+    bool triggerCreate;
+    bool triggerDestroy;
 
     void processInputs(InputBundle &inputs);
-    void computePhysics(float dT, const Terrain &terrain);
+    void computePhysics(float dT, Terrain &terrain);
 
 public:
     // Readonly public reference to our camera
     // for easy access from MyGL
     const Camera& mcr_camera;
 
-    Player(glm::vec3 pos, const Terrain &terrain);
+    Player(glm::vec3 pos, Terrain &terrain);
     virtual ~Player() override;
 
     void setCameraWidthHeight(unsigned int w, unsigned int h);
 
     void tick(float dT, InputBundle &input) override;
+
+//    static bool gridMarch(glm::vec3 rayOrigin, int axis, float length,
+//                       const Terrain &terrain, float *out_dist, glm::ivec3 *out_blockHit);
+
+    static bool gridMarch(glm::vec3 rayOrigin, glm::vec3 rayDir,
+                       const Terrain &ter, float *oDist, glm::ivec3 *oHitBlock, int *interfaceAxis);
 
     // Player overrides all of Entity's movement
     // functions so that it transforms its camera
@@ -47,4 +61,5 @@ public:
     QString velAsQString() const;
     QString accAsQString() const;
     QString lookAsQString() const;
+
 };

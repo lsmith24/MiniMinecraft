@@ -94,7 +94,11 @@ void MyGL::resizeGL(int w, int h) {
 // entities in the scene.
 void MyGL::tick() {
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
+    long long currframe = QDateTime::currentMSecsSinceEpoch();
+    m_player.tick(currframe - lastFrame, m_inputs);
+    lastFrame = currframe;
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
+
 }
 
 void MyGL::sendPlayerDataToGUI() const {
@@ -137,10 +141,6 @@ void MyGL::renderTerrain() {
 
 
 void MyGL::keyPressEvent(QKeyEvent *e) {
-    float amount = 2.0f;
-    if(e->modifiers() & Qt::ShiftModifier){
-        amount = 10.0f;
-    }
     // http://doc.qt.io/qt-5/qt.html#Key-enum
     // This could all be much more efficient if a switch
     // statement were used, but I really dislike their
@@ -148,33 +148,62 @@ void MyGL::keyPressEvent(QKeyEvent *e) {
     // chain of if statements instead
     if (e->key() == Qt::Key_Escape) {
         QApplication::quit();
-    } else if (e->key() == Qt::Key_Right) {
-        m_player.rotateOnUpGlobal(-amount);
-    } else if (e->key() == Qt::Key_Left) {
-        m_player.rotateOnUpGlobal(amount);
-    } else if (e->key() == Qt::Key_Up) {
-        m_player.rotateOnRightLocal(-amount);
-    } else if (e->key() == Qt::Key_Down) {
-        m_player.rotateOnRightLocal(amount);
     } else if (e->key() == Qt::Key_W) {
-        m_player.moveForwardLocal(amount);
+        m_inputs.wPressed = true;
     } else if (e->key() == Qt::Key_S) {
-        m_player.moveForwardLocal(-amount);
+        m_inputs.sPressed = true;
     } else if (e->key() == Qt::Key_D) {
-        m_player.moveRightLocal(amount);
+        m_inputs.dPressed = true;
     } else if (e->key() == Qt::Key_A) {
-        m_player.moveRightLocal(-amount);
+        m_inputs.aPressed = true;
     } else if (e->key() == Qt::Key_Q) {
-        m_player.moveUpGlobal(-amount);
+        m_inputs.qPressed = true;
     } else if (e->key() == Qt::Key_E) {
-        m_player.moveUpGlobal(amount);
+        m_inputs.ePressed = true;
+    } else if (e->key() == Qt::Key_Space) {
+        m_inputs.spacePressed = true;
+    } else if (e->key() == Qt::Key_F) {
+        m_inputs.fPressed = true;
+    }
+}
+
+void MyGL::keyReleaseEvent(QKeyEvent *e) {
+    if (e->key() == Qt::Key_W) {
+        m_inputs.wPressed = false;
+    } else if (e->key() == Qt::Key_S) {
+        m_inputs.sPressed = false;
+    } else if (e->key() == Qt::Key_D) {
+        m_inputs.dPressed = false;
+    } else if (e->key() == Qt::Key_A) {
+        m_inputs.aPressed = false;
+    } else if (e->key() == Qt::Key_Q) {
+        m_inputs.qPressed = false;
+    } else if (e->key() == Qt::Key_E) {
+        m_inputs.ePressed = false;
+    } else if (e->key() == Qt::Key_Space) {
+        m_inputs.spacePressed = false;
+    } else if (e->key() == Qt::Key_F) {
+        m_inputs.fPressed = false;
     }
 }
 
 void MyGL::mouseMoveEvent(QMouseEvent *e) {
-    // TODO
+    m_inputs.mouseX = e->x();
+    m_inputs.mouseY = e->y();
 }
 
 void MyGL::mousePressEvent(QMouseEvent *e) {
-    // TODO
+    if (e->button() == Qt::RightButton) {
+        m_inputs.rightClick = true;
+    } else if (e->button() == Qt::LeftButton) {
+        m_inputs.leftClick = true;
+    }
+}
+
+void MyGL::mouseReleaseEvent(QMouseEvent *e) {
+    if (e->button() == Qt::RightButton) {
+        m_inputs.rightClick = false;
+    } else if (e->button() == Qt::LeftButton) {
+        m_inputs.leftClick = false;
+    }
 }

@@ -217,3 +217,11 @@ void Terrain::CreateTestScene()
         setBlockAt(32, y, 32, GRASS);
     }
 }
+
+//void Terrain::recreateChunk(int x, int z) {
+//    vboDatamut.lock();
+//    Chunk* c = getChunkAt(x, z).get();
+//    c->create();
+//    vboDatamut.unlock();
+
+//}
