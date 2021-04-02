@@ -72,6 +72,7 @@ public:
     // values) set the block at that point in space to the
     // given type.
     void setBlockAt(int x, int y, int z, BlockType t);
+    void recreateChunk(int x, int y);
 
     std::unordered_set<int64_t> getTerrainZones();
 

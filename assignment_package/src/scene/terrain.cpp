@@ -388,5 +388,23 @@ void Terrain::createBlock(int x, int z) {
     }
 }
 
+//void Terrain::recreateChunk(int x, int z) {
+//    vboDatamut.lock();
+//    Chunk* c = getChunkAt(x, z).get();
+//    c->create();
+//    vboDatamut.unlock();
+
+//}
+
+<<<<<<< HEAD
 
 
+=======
+//void Terrain::recreateChunk(int x, int z) {
+//    vboDatamut.lock();
+//    Chunk* c = getChunkAt(x, z).get();
+//    c->create();
+//    vboDatamut.unlock();
+
+//}
+>>>>>>> origin/PlayerPhysics

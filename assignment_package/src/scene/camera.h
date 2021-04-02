@@ -20,5 +20,12 @@ public:
 
     void tick(float dT, InputBundle &input) override;
 
+    float theta;
+    float phi;
+    void setThetaPhi(int mouseX, int mouseY);
+
     glm::mat4 getViewProj() const;
+    glm::mat4 getView() const;
+    glm::mat4 getProj() const;
+    glm::vec3 getForward() const;
 };
