@@ -150,8 +150,8 @@ Chunk* Terrain::instantiateChunkAt(int x, int z) {
 void Terrain::createGenericChunk(int chunk_x, int chunk_z) {
     // Create the basic terrain floor
     const uPtr<Chunk> &chunk = getChunkAt(chunk_x, chunk_z);
-    for(int x = 0; x < 16; ++x) {
-        for(int z = 0; z < 16; ++z) {
+    for(int x = chunk_x; x < chunk_x + 16; ++x) {
+        for(int z = chunk_z; z < chunk_z + 16; ++z) {
 //            if((x + z) % 2 == 0) {
 //                chunk->setBlockAt(x, 128, z, STONE);
 //            }
@@ -235,6 +235,9 @@ void Terrain::CreateTestScene()
     // the "generated terrain zone" at (0,0)
     // now exists.
     m_generatedTerrain.insert(toKey(0, 0));
+    m_generatedTerrain.insert(toKey(64, 64));
+    m_generatedTerrain.insert(toKey(0, 64));
+    m_generatedTerrain.insert(toKey(64, 0));
 
     // Create the basic terrain floor
     for(int x = 0; x < 64; ++x) {
@@ -245,7 +248,7 @@ void Terrain::CreateTestScene()
 //            else {
 //                setBlockAt(x, 128, z, DIRT);
 //            }
-            createBlock(x, z);
+              createBlock(x, z);
         }
     }
     // Add "walls" for collision testing
@@ -339,7 +342,7 @@ float Terrain::fbm(float x) {
 
 int Terrain::grassHeight(int x, int z) {
     float noise = worley(glm::vec2(x / 64.f, z / 64.f));
-    return 129 + noise * 127 / 2 + 5;
+    return 129 + noise * 40 + 5;
 }
 
 int Terrain::mountainHeight(int x, int z) {
@@ -353,19 +356,21 @@ void Terrain::createBlock(int x, int z) {
     int grHeight = grassHeight(x, z);
     int mtHeight = mountainHeight(x, z);
 
-    float pn = perlin(glm::vec2(x / 256.f, z / 256.f));
-    pn = glm::smoothstep(0.3, 0.7, double(pn));
+    float pn = perlin(glm::vec2(x / 256.f, z / 256.f)) * 0.5 + 0.5;
+    pn = glm::smoothstep(0.25, 0.75, double(pn));
+    pn = pn * 2;
     int lerp = int((1 - pn) * grHeight + pn * mtHeight);
-
     //grass
-    if (pn > 0.7) {
+    if (pn > 0.5) {
         for (int i = 0; i < lerp; i++) {
             if (i == lerp - 1) {
                 setBlockAt(x, i, z, GRASS);
-            } else if (i <= 128) {
+            } else if (i <= 128 && i >= 0) {
                 setBlockAt(x, i, z, STONE);
-            } else {
+            } else if (i > 128) {
                 setBlockAt(x, i, z, DIRT);
+            } else {
+                setBlockAt(x, i, z, EMPTY);
             }
         }
     }
@@ -374,6 +379,8 @@ void Terrain::createBlock(int x, int z) {
         for (int i = 0; i < lerp; i++) {
             if (i == lerp -1 && lerp > 200) {
                 setBlockAt(x, i, z, SNOW);
+            } else if (i < 0) {
+                setBlockAt(x, i, z, EMPTY);
             } else {
                 setBlockAt(x, i, z, STONE);
             }

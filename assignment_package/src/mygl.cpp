@@ -93,9 +93,11 @@ void MyGL::resizeGL(int w, int h) {
 // all per-frame actions here, such as performing physics updates on all
 // entities in the scene.
 void MyGL::tick() {
+//    update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
+//    sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
+    m_terrain.expandChunks(m_player); // Checks if more chunks need to be loaded
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
-    m_terrain.expandChunks(m_player); // Checks if more chunks need to be loaded
 }
 
 void MyGL::sendPlayerDataToGUI() const {
