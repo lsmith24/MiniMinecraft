@@ -10,7 +10,7 @@ MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       m_worldAxes(this),
       m_progLambert(this), m_progFlat(this),
-      m_terrain(this), m_player(glm::vec3(48.f, 129.f, 48.f), m_terrain)
+      m_terrain(this), m_player(glm::vec3(48.f, 140.f, 48.f), m_terrain)
 {
     // Connect the timer to a function so that when the timer ticks the function is executed
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -139,16 +139,11 @@ void MyGL::paintGL() {
 // terrain that surround the player (refer to Terrain::m_generatedTerrain
 // for more info)
 void MyGL::renderTerrain() {
-    // Draw the terrain generation zones around the current terrain generation zone
-    // As such, the zones in the unordered_set should only be ones that should be loaded
-    for(int64_t key : m_terrain.getTerrainZones()) {
-        int minX = toCoords(key)[0];
-        int minZ = toCoords(key)[1];
-        int maxX = minX + 64;
-        int maxZ = minZ + 64;
-
-        m_terrain.draw(minX, maxX, minZ, maxZ, &m_progLambert);
-    }
+    // Get the zone that the player is currently in
+    int player_x = static_cast<int>(glm::floor(m_player.mcr_position[0] / 64.f) * 64);
+    int player_z = static_cast<int>(glm::floor(m_player.mcr_position[2] / 64.f) * 64);
+    // Just draw it all at once; 3x3 terrain generation zone around the player
+    m_terrain.draw(player_x - 64, player_x + 128, player_z - 64, player_z + 128, &m_progLambert);
 }
 
 

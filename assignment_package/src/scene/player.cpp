@@ -148,7 +148,6 @@ void Player::computePhysics(float dT, Terrain &terrain) {
                                       * glm::vec4((m_velocity * dT * 0.001f), 1.f));
         this->moveAlongVector(movevec);
     } else {
-
         glm::vec3 curPos = glm::floor(m_position);
         if(terrain.getBlockAt(curPos.x, curPos.y - 1, curPos.z) == EMPTY ||
                 m_position.y - curPos.y >= 0.01f){
