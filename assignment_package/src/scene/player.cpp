@@ -367,6 +367,13 @@ void Player::rotateOnUpGlobal(float degrees) {
     m_camera.rotateOnUpGlobal(degrees);
 }
 
+glm::vec3 Player::getVelocity() {
+    return m_velocity;
+}
+void Player::setVelocity(glm::vec3 v) {
+    m_velocity = v;
+}
+
 QString Player::posAsQString() const {
     std::string str("( " + std::to_string(m_position.x) + ", " + std::to_string(m_position.y) + ", " + std::to_string(m_position.z) + ")");
     return QString::fromStdString(str);

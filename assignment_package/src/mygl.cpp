@@ -70,6 +70,7 @@ void MyGL::initializeGL()
     // using multiple VAOs, we can just bind one once.
     glBindVertexArray(vao);
 
+    // Test scene no longer needed; delete later
     m_terrain.CreateTestScene();
 }
 
@@ -93,15 +94,14 @@ void MyGL::resizeGL(int w, int h) {
 // all per-frame actions here, such as performing physics updates on all
 // entities in the scene.
 void MyGL::tick() {
-//    update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
-//    sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
     m_terrain.expandChunks(m_player); // Checks if more chunks need to be loaded
+    m_terrain.updateChunks(); // Move thread generated chunks to terrain
+    m_terrain.updateVBOs();
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     long long currframe = QDateTime::currentMSecsSinceEpoch();
     m_player.tick(currframe - lastFrame, m_inputs);
     lastFrame = currframe;
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
-
 }
 
 void MyGL::sendPlayerDataToGUI() const {

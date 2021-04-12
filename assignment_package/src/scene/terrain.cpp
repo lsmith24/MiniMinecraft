@@ -2,11 +2,18 @@
 #include "cube.h"
 #include <stdexcept>
 #include <iostream>
+#include <thread>
+#include <QDateTime>
 #include "math.h"
 
 Terrain::Terrain(OpenGLContext *context)
-    : m_chunks(), m_generatedTerrain(),  mp_context(context)
-{}
+    : m_chunks(), m_generatedTerrain(), mp_context(context),
+      thread_pool(QThreadPool::globalInstance()), block_workers(),
+      vbo_workers(), gen_chunks(), chunk_mtx()
+{
+    // NOTE: remove unless needed
+    //thread_pool->setMaxThreadCount(25); // 25 threads available, one for each possible terrain generation zone
+}
 
 Terrain::~Terrain() {
     // Destroy all chunks
@@ -143,31 +150,19 @@ Chunk* Terrain::instantiateChunkAt(int x, int z) {
         auto &chunkWest = m_chunks[toKey(x - 16, z)];
         cPtr->linkNeighbor(chunkWest, XNEG);
     }
-    for(int i = 0; i < 16; ++i) {
-        for(int j = 0; j < 16; ++j) {
-            createBlock(x + i, z + j);
-        }
-    }
+
     return cPtr;
 }
 
-void Terrain::createGenericChunk(int chunk_x, int chunk_z) {
+void Terrain::generateChunk(Chunk* c, int x_offset, int z_offset) {
     // Create the basic terrain floor
-    const uPtr<Chunk> &chunk = getChunkAt(chunk_x, chunk_z);
-//    for(int x = chunk_x; x < chunk_x + 16; ++x) {
-//        for(int z = chunk_z; z < chunk_z + 16; ++z) {
-//            if((x + z) % 2 == 0) {
-//                chunk->setBlockAt(x, 128, z, STONE);
-//            }
-//            else {
-//                chunk->setBlockAt(x, 128, z, DIRT);
-//            }
-            //createBlock(x, z);
-//        }
-//    }
-    chunk->create();
+    for(int x = 0; x < 16; ++x) {
+        for(int z = 0; z < 16; ++z) {
+            c->createBlock(x, z, x_offset, z_offset);
+        }
+    }
+    c->create();
 }
-
 // NOTE: remove the generic terrain generation when other terrain generation is implemented
 void Terrain::expandChunks(const Player &player) {
     // Get the zone that the player is currently in
@@ -175,25 +170,19 @@ void Terrain::expandChunks(const Player &player) {
     int player_z = static_cast<int>(glm::floor(player.mcr_position[2] / 64.f) * 64);
 
     // Add new terrain zones if needed
-    for(int x = -64; x <= 64; x += 64) {
-        for(int z = -64; z <= 64; z += 64) {
+    for(int x = -128; x <= 128; x += 64) {
+        for(int z = -128; z <= 128; z += 64) {
             int new_x = player_x + x;
             int new_z = player_z + z;
+
             // If the key is not in the set, add it and generate the new terrain zone
             if (m_generatedTerrain.count(toKey(new_x, new_z)) <= 0) {
                m_generatedTerrain.insert(toKey(new_x, new_z));
-               // Check / create the 16 chunks of the zone
-               // If chunks are created indepently of a terrain zone,
-               // a check should be added to ensure a chunk is not instaniated
-               // multiple times
-               if(!hasChunkAt(new_x, new_z)) {
-                   for(int x2 = 0; x2 < 64; x2 += 16) {
-                       for(int z2 = 0; z2 < 64; z2 += 16) {
-                           instantiateChunkAt(new_x + x2, new_z + z2);
-                           createGenericChunk(new_x + x2, new_z + z2);
-                       }
-                   }
-               }
+               // Spawn a worker thread to create the chunk and its blocks
+               block_workers.push_back(mkU<BlockTypeWorker>(BlockTypeWorker(mp_context, this, &chunk_mtx, new_x, new_z)));
+               thread_pool->start(block_workers.back().get());
+               // NOTE: the worker queue should be reset at some point, but since only the back is used
+               // it shouldn't create any immediate problems.
             }
         }
     }
@@ -211,162 +200,71 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
     }
 }
 
-void Terrain::CreateTestScene()
-{
-    // Create the Chunks that will
-    // store the blocks for our
-    // initial world space
-    for(int x = -64; x < 128; x += 16) {
-        for(int z = -64; z < 128; z += 16) {
-            instantiateChunkAt(x, z);
-        }
-    }
-    // Tell our existing terrain set that
-    // the "generated terrain zone" at (0,0)
-    // now exists.
-    for(int i = -64; i <= 64; i += 64) {
-        for(int j = -64; j <=64; j += 64) {
-            m_generatedTerrain.insert(toKey(i, j));
-        }
-    }
-
-    // Build all of the chunks
-    for (const auto &c : m_chunks) {
-        c.second->create();
-    }
-}
-
-//Perlin noise helper functions
-glm::vec2 Terrain::random2(glm::vec2 p) {
-    return glm::fract(glm::sin(glm::vec2(glm::dot(p, glm::vec2(123.4, 321.7)), glm::dot(p, glm::vec2(258.1, 195.3)))) * 2343524.545324f);
-}
-
-float Terrain::surflet(glm::vec2 p, glm::vec2 gridPt) {
-    glm::vec2 t2 = glm::abs(p - gridPt);
-    glm::vec2 t = glm::vec2(1.f) - 6.f * glm::pow(t2, glm::vec2(5.f)) + 15.f * glm::pow(t2, glm::vec2(4.f)) - 10.f * glm::pow(t2, glm::vec2(3.f));
-    glm::vec2 gradient = random2(gridPt) * 2.f - glm::vec2(1, 1);
-    glm::vec2 diff = p - gridPt;
-    float height = glm::dot(diff, gradient);
-    return height * t.x * t.y;
-}
-
-//Perlin noise
-float Terrain::perlin(glm::vec2 uv) {
-    float surfletSum = 0.f;
-    for(int dx = 0; dx <= 1; dx++) {
-        for(int dy = 0; dy <= 1; dy++) {
-            surfletSum += surflet(uv, glm::floor(uv) + glm::vec2(dx, dy));
-        }
-    }
-    return surfletSum;
-}
-
-//Worley noise
-float Terrain::worley(glm::vec2 uv) {
-    uv = uv * 2.f;
-    glm::vec2 uvInt = glm::floor(uv);
-    glm::vec2 uvFract = glm::fract(uv);
-    float minDist = 1.f;
-
-    for (int y = -1; y <= 1; y++) {
-        for (int x  =-1; x <= 1; x++) {
-            glm::vec2 neighbor = glm::vec2(float(x), float(y));
-            glm::vec2 point = random2(uvInt + neighbor);
-            glm::vec2 diff = neighbor + point - uvFract;
-            float dist = glm::length(diff);
-            minDist = glm::min(minDist, dist);
-        }
-    }
-    return minDist;
-}
-
-float Terrain::noise1D(int x) {
-    return glm::fract(glm::sin(glm::dot(glm::vec2(x, x * 123456432), glm::vec2(124.3, 235.5))) * 213454.54343);
-}
-
-float Terrain::interpNoise1D(float x) {
-    int intX = int(floor(x));
-    float fractX = glm::fract(x);
-
-    float v1 = noise1D(intX);
-    float v2 = noise1D(intX + 1);
-    return glm::mix(v1, v2, fractX);
-}
-
-float Terrain::fbm(float x) {
-    float total = 0;
-    float persistence = 0.5f;
-    int octaves = 8;
-
-    for(int i = 1; i <= octaves; i++) {
-        float freq = pow(2.f, i);
-        float amp = pow(persistence, i);
-
-        total += interpNoise1D(x * freq) * amp;
-    }
-    return total;
-}
-
-int Terrain::grassHeight(int x, int z) {
-    float noise = worley(glm::vec2(x / 64.f, z / 64.f));
-    return 129 + noise * 40 + 5;
-}
-
-int Terrain::mountainHeight(int x, int z) {
-    float noise = perlin(glm::vec2(x / 32.f, z / 32.f));
-    noise = glm::smoothstep(0.25, 0.75, double(noise));
-    noise = pow(noise, 2);
-    return noise * 127 + 129;
-}
-
-void Terrain::createBlock(int x, int z) {
-    int grHeight = grassHeight(x, z);
-    int mtHeight = mountainHeight(x, z);
-
-    float pn = perlin(glm::vec2(x / 256.f, z / 256.f)) * 0.5 + 0.5;
-    pn = glm::smoothstep(0.25, 0.75, double(pn));
-    pn = pn * 2;
-    int lerp = int((1 - pn) * grHeight + pn * mtHeight);
-    //grass
-    if (pn > 0.5) {
-        for (int i = 0; i < lerp; i++) {
-            if (i == lerp - 1) {
-                setBlockAt(x, i, z, GRASS);
-            } else if (i <= 128 && i >= 0) {
-                setBlockAt(x, i, z, STONE);
-            } else if (i > 128) {
-                setBlockAt(x, i, z, DIRT);
-            } else {
-                setBlockAt(x, i, z, EMPTY);
+// Build the base 3x3 zones when the program is started
+void Terrain::CreateTestScene() {
+    qint64 start_time = QDateTime::currentMSecsSinceEpoch();
+    std::cout << "Creating base scene..." << std::endl;
+    // Create the chunks of the starting area (3x3 terrain generation zones)
+    for(int x = -64; x <= 64; x += 64) {
+        for(int z = -64; z <= 64; z += 64) {
+            m_generatedTerrain.insert(toKey(x, z));
+            for(int x2 = 0; x2 < 64; x2 += 16) {
+                for(int z2 = 0; z2 < 64; z2 += 16) {
+                    Chunk* c = instantiateChunkAt(x + x2, z + z2);
+                    generateChunk(c, x + x2, z + z2);
+                }
             }
         }
     }
-    else {
-       //mountains
-        for (int i = 0; i < lerp; i++) {
-            if (i == lerp -1 && lerp > 200) {
-                setBlockAt(x, i, z, SNOW);
-            } else if (i < 0) {
-                setBlockAt(x, i, z, EMPTY);
-            } else {
-                setBlockAt(x, i, z, STONE);
+    std::cout << "Finished creating base scene in " << (QDateTime::currentMSecsSinceEpoch() - start_time) / 1000.0f << " seconds" << std::endl;
+}
+
+// Move chunks created from threads to the terrain chunk structure
+void Terrain::updateChunks() {
+    chunk_mtx.lock();
+    if (!gen_chunks.empty()) {
+        for(unsigned int i = 0; i < gen_chunks.size(); ++i) {
+            int x_offset = gen_chunks[i]->x_offset;
+            int z_offset = gen_chunks[i]->z_offset;
+            m_chunks[toKey(x_offset, z_offset)] = std::move(gen_chunks[i]);
+        }
+        gen_chunks.clear();
+    }
+    chunk_mtx.unlock();
+}
+
+void Terrain::updateVBOs() {
+    // First, check each terrain generation zone to see if its VBO data needs to be generated
+    for(int64_t key : m_generatedTerrain) {
+        glm::vec2 coord = toCoords(key);
+        // Check the chunks starting from this coordintes
+        for(int x = coord.x; x < coord.x + 64; x += 16) {
+            for(int z = coord.y; z < coord.y + 64; z += 16) {
+                // Check that the worker thread for this zone
+                // has finished; if a chunk is missing, assume
+                // the zone is not finished and stop initializing.
+                if (hasChunkAt(x,z)) {
+                    Chunk *c = getChunkAt(x,z).get();
+                    if (!c->generating && !c->generated) {
+                        vbo_workers.push_back(mkU<VBOWorker>(VBOWorker(c)));
+                        vbo_workers.back()->setAutoDelete(false);
+                        thread_pool->start(vbo_workers.back().get());
+                        c->generating = true;
+                    }
+                }
+                else {
+                    continue;
+                }
             }
         }
     }
+    // Check VBOWorkers to see if they have computed their VBO data; if so, send to GPU and delete worker
+    // NOTE: should probably use a mutex, but it hasn't created problems yet.w
+    for(unsigned int i = 0; i < vbo_workers.size(); ++i) {
+        if(vbo_workers[i]->isCompleted()) {
+            vbo_workers[i]->getChunk()->bufferData(vbo_workers[i]->getData().opaque_vertex, vbo_workers[i]->getData().opaque_index);
+            vbo_workers.erase(vbo_workers.begin() + i);
+            --i;
+        }
+    }
 }
-
-//void Terrain::recreateChunk(int x, int z) {
-//    vboDatamut.lock();
-//    Chunk* c = getChunkAt(x, z).get();
-//    c->create();
-//    vboDatamut.unlock();
-
-//}
-
-//void Terrain::recreateChunk(int x, int z) {
-//    vboDatamut.lock();
-//    Chunk* c = getChunkAt(x, z).get();
-//    c->create();
-//    vboDatamut.unlock();
-
-//}

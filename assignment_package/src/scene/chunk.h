@@ -52,6 +52,12 @@ private:
 
 public:
     Chunk(OpenGLContext* context);
+
+    // Needed for multithreading
+    int x_offset, z_offset;
+    bool generating;
+    bool generated;
+
     BlockType getBlockAt(unsigned int x, unsigned int y, unsigned int z) const;
     BlockType getBlockAt(int x, int y, int z) const;
     void setBlockAt(unsigned int x, unsigned int y, unsigned int z, BlockType t);
@@ -60,4 +66,19 @@ public:
     std::vector<glm::vec4> createFaces(std::array<bool, 6> faces, int x, int y, int z);
     void bufferData(const std::vector<glm::vec4> &interleaved, const std::vector<GLuint> &idx);
     void create() override;
+    void create(std::vector<glm::vec4> &interleaved, std::vector<GLuint> &idx);
+
+    // Fills chunk with procedural height field data
+    void generateChunk(int x_offset, int z_offset);
+
+    glm::vec2 random2(glm::vec2 p);
+    float surflet(glm::vec2 p, glm::vec2 gridPt);
+    float perlin(glm::vec2 uv);
+    float worley(glm::vec2 uv);
+    float noise1D(int x);
+    float interpNoise1D(float x);
+    float fbm(float x);
+    int grassHeight(int x, int z);
+    int mountainHeight(int x, int z);
+    void createBlock(int x, int z, int x_offset, int z_offset);
 };

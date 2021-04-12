@@ -2,7 +2,8 @@
 #include <iostream>
 
 Chunk::Chunk(OpenGLContext* context)
-    : Drawable(context), m_blocks(), m_neighbors{{XPOS, nullptr}, {XNEG, nullptr}, {ZPOS, nullptr}, {ZNEG, nullptr}}
+    : Drawable(context), m_blocks(), m_neighbors{{XPOS, nullptr}, {XNEG, nullptr}, {ZPOS, nullptr}, {ZNEG, nullptr}},
+      x_offset(0), z_offset(0), generating(false), generated(false)
 {
     std::fill_n(m_blocks.begin(), 65536, EMPTY);
 }
@@ -273,4 +274,175 @@ void Chunk::create() {
 
     // Upload this data to the VBO
     bufferData(interleaved, idx);
+
+    // Don't generate this chunk again
+    generated = true;
+}
+
+// Poor design, but this is just the duplicated create() that passes the results to vectors
+// instead of pushing it to VBOs so the threads can use the function.
+void Chunk::create(std::vector<glm::vec4> &interleaved, std::vector<GLuint> &idx) {
+    // Interleaved takes the form pos0col0nor0pos1col1nor1...
+
+    // Loop through each block in the chunk array;
+    // check each neighbor of the block, and add a face
+    // for each neighbor that is EMPTY
+    for(int x = 0; x < 16; ++x) {
+        for(int y = 0; y < 256; ++y) {
+            for(int z = 0; z < 16; ++z) {
+                // Skip all empty blocks; they won't have faces to draw
+                if (getBlockAt(x, y, z) == EMPTY) {
+                    continue;
+                }
+                // Check which faces need to be drawn
+                std::array<bool, 6> faces = checkBlockFaces(x, y, z);
+                // Generate a vector of all the interleaved face data
+                std::vector<glm::vec4> new_faces = createFaces(faces, x, y, z);
+                // Append this vector to the current interleaved
+                interleaved.insert(std::end(interleaved), std::begin(new_faces), std::end(new_faces));
+            }
+        }
+    }
+    // Create the index buffer from the interleaved VBO
+    for(uint i = 0; i < interleaved.size(); i +=4) {
+        idx.push_back(i);
+        idx.push_back(i+1);
+        idx.push_back(i+2);
+        idx.push_back(i);
+        idx.push_back(i+2);
+        idx.push_back(i+3);
+    }
+
+    // Don't generate this chunk again
+    generated = true;
+}
+
+// Builds procedural terrain for the chunk based on its offset
+void Chunk::generateChunk(int x_offset, int z_offset) {
+    for(int x = 0; x < 16; ++x) {
+        for(int z = 0; z < 16; ++z) {
+            createBlock(x, z, x_offset, z_offset);
+        }
+    }
+}
+
+//Perlin noise helper functions
+glm::vec2 Chunk::random2(glm::vec2 p) {
+    return glm::fract(glm::sin(glm::vec2(glm::dot(p, glm::vec2(123.4, 321.7)), glm::dot(p, glm::vec2(258.1, 195.3)))) * 2343524.545324f);
+}
+
+float Chunk::surflet(glm::vec2 p, glm::vec2 gridPt) {
+    glm::vec2 t2 = glm::abs(p - gridPt);
+    glm::vec2 t = glm::vec2(1.f) - 6.f * glm::pow(t2, glm::vec2(5.f)) + 15.f * glm::pow(t2, glm::vec2(4.f)) - 10.f * glm::pow(t2, glm::vec2(3.f));
+    glm::vec2 gradient = random2(gridPt) * 2.f - glm::vec2(1, 1);
+    glm::vec2 diff = p - gridPt;
+    float height = glm::dot(diff, gradient);
+    return height * t.x * t.y;
+}
+
+//Perlin noise
+float Chunk::perlin(glm::vec2 uv) {
+    float surfletSum = 0.f;
+    for(int dx = 0; dx <= 1; dx++) {
+        for(int dy = 0; dy <= 1; dy++) {
+            surfletSum += surflet(uv, glm::floor(uv) + glm::vec2(dx, dy));
+        }
+    }
+    return surfletSum;
+}
+
+//Worley noise
+float Chunk::worley(glm::vec2 uv) {
+    uv = uv * 2.f;
+    glm::vec2 uvInt = glm::floor(uv);
+    glm::vec2 uvFract = glm::fract(uv);
+    float minDist = 1.f;
+
+    for (int y = -1; y <= 1; y++) {
+        for (int x  =-1; x <= 1; x++) {
+            glm::vec2 neighbor = glm::vec2(float(x), float(y));
+            glm::vec2 point = random2(uvInt + neighbor);
+            glm::vec2 diff = neighbor + point - uvFract;
+            float dist = glm::length(diff);
+            minDist = glm::min(minDist, dist);
+        }
+    }
+    return minDist;
+}
+
+float Chunk::noise1D(int x) {
+    return glm::fract(glm::sin(glm::dot(glm::vec2(x, x * 123456432), glm::vec2(124.3, 235.5))) * 213454.54343);
+}
+
+float Chunk::interpNoise1D(float x) {
+    int intX = int(floor(x));
+    float fractX = glm::fract(x);
+
+    float v1 = noise1D(intX);
+    float v2 = noise1D(intX + 1);
+    return glm::mix(v1, v2, fractX);
+}
+
+float Chunk::fbm(float x) {
+    float total = 0;
+    float persistence = 0.5f;
+    int octaves = 8;
+
+    for(int i = 1; i <= octaves; i++) {
+        float freq = pow(2.f, i);
+        float amp = pow(persistence, i);
+
+        total += interpNoise1D(x * freq) * amp;
+    }
+    return total;
+}
+
+int Chunk::grassHeight(int x, int z) {
+    float noise = worley(glm::vec2(x / 64.f, z / 64.f));
+    return 129 + noise * 40 + 5;
+}
+
+int Chunk::mountainHeight(int x, int z) {
+    float noise = perlin(glm::vec2(x / 32.f, z / 32.f));
+    noise = glm::smoothstep(0.25, 0.75, double(noise));
+    noise = pow(noise, 2);
+    return noise * 127 + 129;
+}
+
+void Chunk::createBlock(int x, int z, int x_offset, int z_offset) {
+    int x_coord = x + x_offset;
+    int z_coord = z + z_offset;
+    int grHeight = grassHeight(x_coord, z_coord);
+    int mtHeight = mountainHeight(x_coord, z_coord);
+
+    float pn = perlin(glm::vec2(x_coord / 256.f, z_coord / 256.f)) * 0.5 + 0.5;
+    pn = glm::smoothstep(0.25, 0.75, double(pn));
+    pn = pn * 2;
+    int lerp = int((1 - pn) * grHeight + pn * mtHeight);
+    //grass
+    if (pn > 0.5) {
+        for (int i = 0; i < lerp; i++) {
+            if (i == lerp - 1) {
+                setBlockAt(x, i, z, GRASS);
+            } else if (i <= 128 && i >= 0) {
+                setBlockAt(x, i, z, STONE);
+            } else if (i > 128) {
+                setBlockAt(x, i, z, DIRT);
+            } else {
+                setBlockAt(x, i, z, EMPTY);
+            }
+        }
+    }
+    else {
+       //mountains
+        for (int i = 0; i < lerp; i++) {
+            if (i == lerp -1 && lerp > 200) {
+                setBlockAt(x, i, z, SNOW);
+            } else if (i < 0) {
+                setBlockAt(x, i, z, EMPTY);
+            } else {
+                setBlockAt(x, i, z, STONE);
+            }
+        }
+    }
 }

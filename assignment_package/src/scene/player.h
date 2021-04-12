@@ -60,6 +60,9 @@ public:
     void rotateOnRightGlobal(float degrees) override;
     void rotateOnUpGlobal(float degrees) override;
 
+    glm::vec3 getVelocity();
+    void setVelocity(glm::vec3 v);
+
     // For sending the Player's data to the GUI
     // for display
     QString posAsQString() const;
