@@ -1,3 +1,4 @@
+## Milestone I
 Efficient Terrain Rendering and Chunking, Ryan Kenney
 
 The terrain drawing function in MyGL ultimately draws every terrain generation zone in m_generatedTerrain through the Terrain draw function. At each tick, all terrain generation zones that are not around the player are deleted, and if there are too few, then new ones are created by creating or loading all of its chunks. To create the VBO data for a chunk, every block is checked and every adjacent empty block adds a face to the VBO. In order to only load one VBO, the position one was chosen; I attempted to create a separate vertex handle for referencing all info, but it ultimately caused the program to crash (although this was likely due to another problem fixed later). As such, the interleaved draw function references the data stored in the position VBO for all attributes.
@@ -7,3 +8,9 @@ In order to generate the terrain I first follow the descriptions for worley nois
 
 Player Physics
 To check for player movement I have created boolean member variables for the Player class that flip to true if the corresponding key is pressed and false otherwise. Additionally, for camera rotation, I created member variables for the Camera class that store the current rotation and I use this to help calculate the new Camera axis. For creating a destroying and block, I used a grid march function that place/destroys the closest block the player is looking at. In flight mode the user can translate their local axis however, including clipping through terrain. But in non-flight mode the user cannot clip through terrain and will collide with any blocks in it’s hotbox. 
+
+## Milestone II
+
+Multithreaded Terrain Generation, Ryan Kenney
+
+The terrain generation was reworked from the previous milestone to not render based on m_generatedTerrain, but to instead just render the chunks in the 3x3 zone range of the player. Upon startup, the 3x3 terrain generation zones surrounding the player are rendered normally to ensure that there are no physics issues and that everything is loaded on program start. From here, the 5x5 area of terrain generation zones are checked every tick and a thread is spawned to initialize each zone's chunks with blocks if that zone does not already exist. These chunks are pushed into a vector in Terrain, and the next function in the tick will add these chunks to Terrain (if the vector is not empty). The last function called each tick for terrain generation will check that every chunk in the 5x5 area has VBO data. If it does, a VBOWorker thread is spawned to create the VBO vectors. These workers are saved in a vector in Terrain, so the second part of this tick function checks each VBOWorker currently in Terrain to see if it is done generating the vectors. If a worker is done, its vectors are pushed to the GPU and the worker is removed from the worker vector.
