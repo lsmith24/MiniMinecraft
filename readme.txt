@@ -1,4 +1,7 @@
-## Milestone I
+-------------------------
+Milestone I
+-------------------------
+
 Efficient Terrain Rendering and Chunking, Ryan Kenney
 
 The terrain drawing function in MyGL ultimately draws every terrain generation zone in m_generatedTerrain through the Terrain draw function. At each tick, all terrain generation zones that are not around the player are deleted, and if there are too few, then new ones are created by creating or loading all of its chunks. To create the VBO data for a chunk, every block is checked and every adjacent empty block adds a face to the VBO. In order to only load one VBO, the position one was chosen; I attempted to create a separate vertex handle for referencing all info, but it ultimately caused the program to crash (although this was likely due to another problem fixed later). As such, the interleaved draw function references the data stored in the position VBO for all attributes.
@@ -9,7 +12,9 @@ In order to generate the terrain I first follow the descriptions for worley nois
 Player Physics
 To check for player movement I have created boolean member variables for the Player class that flip to true if the corresponding key is pressed and false otherwise. Additionally, for camera rotation, I created member variables for the Camera class that store the current rotation and I use this to help calculate the new Camera axis. For creating a destroying and block, I used a grid march function that place/destroys the closest block the player is looking at. In flight mode the user can translate their local axis however, including clipping through terrain. But in non-flight mode the user cannot clip through terrain and will collide with any blocks in it’s hotbox. 
 
-## Milestone II
+-------------------------
+Milestone II
+-------------------------
 
 Multithreaded Terrain Generation, Ryan Kenney
 
