@@ -47,6 +47,7 @@ private:
 
     OpenGLContext* mp_context;
 
+    int time;
 public:
     Terrain(OpenGLContext *context);
     ~Terrain();
@@ -92,6 +93,8 @@ public:
     // Initializes the Chunks that store the 64 x 256 x 64 block scene you
     // see when the base code is run.
     void CreateTestScene();
+
+    void setTime(int t);
 
     glm::vec2 random2(glm::vec2 p);
     float surflet(glm::vec2 p, glm::vec2 gridPt);

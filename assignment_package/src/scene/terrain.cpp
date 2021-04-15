@@ -215,7 +215,9 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
             if (hasChunkAt(x, z)) {
                const uPtr<Chunk> &chunk = getChunkAt(x, z);
                shaderProgram->setModelMatrix(glm::translate(glm::mat4(), glm::vec3(x, 0, z)));
-               shaderProgram->drawInterleaved(*chunk);
+               //shaderProgram->drawInterleaved(*chunk);
+               shaderProgram->drawInterleaved(*chunk, 0, 0, time);
+               //shaderProgram->drawInterleaved(*chunk, 0, 1, time);
             }
         }
     }
@@ -388,6 +390,10 @@ void Terrain::createBlock(int x, int z) {
     }
 }
 
+void Terrain::setTime(int t) {
+    time = t;
+}
+
 //void Terrain::recreateChunk(int x, int z) {
 //    vboDatamut.lock();
 //    Chunk* c = getChunkAt(x, z).get();
@@ -396,15 +402,3 @@ void Terrain::createBlock(int x, int z) {
 
 //}
 
-<<<<<<< HEAD
-
-
-=======
-//void Terrain::recreateChunk(int x, int z) {
-//    vboDatamut.lock();
-//    Chunk* c = getChunkAt(x, z).get();
-//    c->create();
-//    vboDatamut.unlock();
-
-//}
->>>>>>> origin/PlayerPhysics

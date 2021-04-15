@@ -8,20 +8,34 @@ class Drawable
 {
 protected:
     int m_count;     // The number of indices stored in bufIdx.
+    int m_count_opq;     // The number of indices stored in bufIdx.
+    int m_count_tran;
     GLuint m_bufIdx; // A Vertex Buffer Object that we will use to store triangle indices (GLuints)
     GLuint m_bufPos; // A Vertex Buffer Object that we will use to store mesh vertices (vec4s)
     GLuint m_bufNor; // A Vertex Buffer Object that we will use to store mesh normals (vec4s)
     GLuint m_bufCol; // Can be used to pass per-vertex color information to the shader, but is currently unused.
-                   // Instead, we use a uniform vec4 in the shader to set an overall color for the geometry
+    // Instead, we use a uniform vec4 in the shader to set an overall color for the geometry
+
+    GLuint m_bufOpAll;
+    GLuint m_bufTransAll;
+
+    GLuint m_bufIdxOpq;
+    GLuint m_bufIdxTran;
 
     bool m_idxGenerated; // Set to TRUE by generateIdx(), returned by bindIdx().
     bool m_posGenerated;
     bool m_norGenerated;
     bool m_colGenerated;
 
+    bool m_opAllGenerated;
+    bool m_transAllGenerated;
+
+    bool m_idxOpqGenerated;
+    bool m_idxTranGenerated;
+
     OpenGLContext* mp_context; // Since Qt's OpenGL support is done through classes like QOpenGLFunctions_3_2_Core,
-                          // we need to pass our OpenGL context to the Drawable in order to call GL functions
-                          // from within this class.
+    // we need to pass our OpenGL context to the Drawable in order to call GL functions
+    // from within this class.
 
 
 public:
@@ -34,6 +48,8 @@ public:
     // Getter functions for various GL data
     virtual GLenum drawMode();
     int elemCount();
+    int elemCountOpq();
+    int elemCountTran();
 
     // Call these functions when you want to call glGenBuffers on the buffers stored in the Drawable
     // These will properly set the values of idxBound etc. which need to be checked in ShaderProgram::draw()
@@ -41,9 +57,17 @@ public:
     void generatePos();
     void generateNor();
     void generateCol();
+    void generateOpAll();
+    void generatedTransAll();
+    void generateIdxOpq();
+    void generateIdxTran();
 
     bool bindIdx();
     bool bindPos();
     bool bindNor();
     bool bindCol();
+    bool bindOpAll();
+    bool bindTransAll();
+    bool bindIdxOpq();
+    bool bindIdxTran();
 };

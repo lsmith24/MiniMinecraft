@@ -9,9 +9,9 @@
 
 ShaderProgram::ShaderProgram(OpenGLContext *context)
     : vertShader(), fragShader(), prog(),
-      attrPos(-1), attrNor(-1), attrCol(-1),
+      attrPos(-1), attrNor(-1), attrUv(-1), animate(-1),
       unifModel(-1), unifModelInvTr(-1), unifViewProj(-1), unifColor(-1),
-      context(context)
+      unifSampler2D(-1), unifTime(-1), context(context)
 {}
 
 void ShaderProgram::create(const char *vertfile, const char *fragfile)
@@ -64,12 +64,15 @@ void ShaderProgram::create(const char *vertfile, const char *fragfile)
 
     attrPos = context->glGetAttribLocation(prog, "vs_Pos");
     attrNor = context->glGetAttribLocation(prog, "vs_Nor");
-    attrCol = context->glGetAttribLocation(prog, "vs_Col");
+    attrUv = context->glGetAttribLocation(prog, "vs_UV");
+    animate = context->glGetAttribLocation(prog, "vs_animate");
 
     unifModel      = context->glGetUniformLocation(prog, "u_Model");
     unifModelInvTr = context->glGetUniformLocation(prog, "u_ModelInvTr");
     unifViewProj   = context->glGetUniformLocation(prog, "u_ViewProj");
     unifColor      = context->glGetUniformLocation(prog, "u_Color");
+    unifSampler2D = context->glGetUniformLocation(prog, "u_Texture");
+    unifTime = context->glGetUniformLocation(prog, "u_Time");
 }
 
 void ShaderProgram::useMe()
@@ -83,27 +86,27 @@ void ShaderProgram::setModelMatrix(const glm::mat4 &model)
 
     if (unifModel != -1) {
         // Pass a 4x4 matrix into a uniform variable in our shader
-                        // Handle to the matrix variable on the GPU
+        // Handle to the matrix variable on the GPU
         context->glUniformMatrix4fv(unifModel,
-                        // How many matrices to pass
-                           1,
-                        // Transpose the matrix? OpenGL uses column-major, so no.
-                           GL_FALSE,
-                        // Pointer to the first element of the matrix
-                           &model[0][0]);
+                                    // How many matrices to pass
+                                    1,
+                                    // Transpose the matrix? OpenGL uses column-major, so no.
+                                    GL_FALSE,
+                                    // Pointer to the first element of the matrix
+                                    &model[0][0]);
     }
 
     if (unifModelInvTr != -1) {
         glm::mat4 modelinvtr = glm::inverse(glm::transpose(model));
         // Pass a 4x4 matrix into a uniform variable in our shader
-                        // Handle to the matrix variable on the GPU
+        // Handle to the matrix variable on the GPU
         context->glUniformMatrix4fv(unifModelInvTr,
-                        // How many matrices to pass
-                           1,
-                        // Transpose the matrix? OpenGL uses column-major, so no.
-                           GL_FALSE,
-                        // Pointer to the first element of the matrix
-                           &modelinvtr[0][0]);
+                                    // How many matrices to pass
+                                    1,
+                                    // Transpose the matrix? OpenGL uses column-major, so no.
+                                    GL_FALSE,
+                                    // Pointer to the first element of the matrix
+                                    &modelinvtr[0][0]);
     }
 }
 
@@ -113,15 +116,15 @@ void ShaderProgram::setViewProjMatrix(const glm::mat4 &vp)
     useMe();
 
     if(unifViewProj != -1) {
-    // Pass a 4x4 matrix into a uniform variable in our shader
-                    // Handle to the matrix variable on the GPU
-    context->glUniformMatrix4fv(unifViewProj,
-                    // How many matrices to pass
-                       1,
-                    // Transpose the matrix? OpenGL uses column-major, so no.
-                       GL_FALSE,
-                    // Pointer to the first element of the matrix
-                       &vp[0][0]);
+        // Pass a 4x4 matrix into a uniform variable in our shader
+        // Handle to the matrix variable on the GPU
+        context->glUniformMatrix4fv(unifViewProj,
+                                    // How many matrices to pass
+                                    1,
+                                    // Transpose the matrix? OpenGL uses column-major, so no.
+                                    GL_FALSE,
+                                    // Pointer to the first element of the matrix
+                                    &vp[0][0]);
     }
 }
 
@@ -180,50 +183,112 @@ void ShaderProgram::draw(Drawable &d)
     context->printGLErrorLog();
 }
 
-// Draw the given object to our screen using this ShaderProgram's shaders (interleaved version)
-void ShaderProgram::drawInterleaved(Drawable &d) {
+//// Draw the given object to our screen using this ShaderProgram's shaders (interleaved version)
+//void ShaderProgram::drawInterleaved(Drawable &d) {
+//    useMe();
+
+//    if(d.elemCount() < 0) {
+//        throw std::out_of_range("Attempting to draw a drawable with m_count of " + std::to_string(d.elemCount()) + "!");
+//    }
+
+//    // Each of the following blocks checks that:
+//    //   * This shader has this attribute, and
+//    //   * This Drawable has a vertex buffer for this attribute.
+//    // If so, it binds the appropriate buffers to each attribute.
+
+//    // Remember, by calling bindPos(), we call
+//    // glBindBuffer on the Drawable's VBO for vertex position,
+//    // meaning that glVertexAttribPointer associates vs_Pos
+//    // (referred to by attrPos) with that VBO
+//    if (d.bindPos()) {
+//        if (attrPos != -1) {
+//            context->glEnableVertexAttribArray(attrPos);
+//            context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)0);
+//        }
+
+//        if (attrNor != -1) {
+//            context->glEnableVertexAttribArray(attrNor);
+//            context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
+//        }
+
+//        if (attrCol != -1) {
+//            context->glEnableVertexAttribArray(attrCol);
+//            context->glVertexAttribPointer(attrCol, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)sizeof(glm::vec4));
+//        }
+//    }
+
+//    // Bind the index buffer and then draw shapes from it.
+//    // This invokes the shader program, which accesses the vertex buffers.
+//    d.bindIdx();
+//    context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
+
+//    if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
+//    if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
+//    if (attrCol != -1) context->glDisableVertexAttribArray(attrCol);
+
+//    context->printGLErrorLog();
+//}
+
+void ShaderProgram::drawInterleaved(Drawable &d, int textureSlot, int version, int t)
+{
     useMe();
 
-    if(d.elemCount() < 0) {
-        throw std::out_of_range("Attempting to draw a drawable with m_count of " + std::to_string(d.elemCount()) + "!");
+    if(d.elemCountOpq() < 0) {
+        throw std::out_of_range("Attempting to draw a drawable with m_count_opq of " + std::to_string(d.elemCountOpq()) + "!");
+    }
+    if(d.elemCountTran() < 0) {
+        throw std::out_of_range("Attempting to draw a drawable with m_count_opq of " + std::to_string(d.elemCountTran()) + "!");
     }
 
-    // Each of the following blocks checks that:
-    //   * This shader has this attribute, and
-    //   * This Drawable has a vertex buffer for this attribute.
-    // If so, it binds the appropriate buffers to each attribute.
+    if(unifSampler2D != -1)
+    {
+        context->glUniform1i(unifSampler2D, textureSlot);
+    }
+    if (unifTime != -1) {
+        context->glUniform1i(unifTime, t);
+    }
 
-    // Remember, by calling bindPos(), we call
-    // glBindBuffer on the Drawable's VBO for vertex position,
-    // meaning that glVertexAttribPointer associates vs_Pos
-    // (referred to by attrPos) with that VBO
-    if (d.bindPos()) {
-        if (attrPos != -1) {
+    if (version == 0) {
+        if (attrPos != -1 && attrUv != -1 && attrNor != -1 && animate != -1 && d.bindOpAll()) {
             context->glEnableVertexAttribArray(attrPos);
-            context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)0);
+            context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)0);
+//            context->glEnableVertexAttribArray(attrNor);
+//            context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(4*sizeof(float)));
+//            context->glEnableVertexAttribArray(attrUv);
+//            context->glVertexAttribPointer(attrUv, 2, GL_FLOAT, false, 11 * sizeof(float), (void*)(8*sizeof(float)));
+//            context->glEnableVertexAttribArray(animate);
+//            context->glVertexAttribPointer(animate, 1, GL_FLOAT, false, 11 * sizeof(float), (void*)(10*sizeof(float)));
         }
+        d.bindIdxOpq();
+        context->glDrawElements(d.drawMode(), d.elemCountOpq(), GL_UNSIGNED_INT, 0);
 
-        if (attrNor != -1) {
+        if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
+        if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
+        if (attrUv != -1) context->glDisableVertexAttribArray(attrUv);
+        if (animate != -1) context->glDisableVertexAttribArray(animate);
+        context->printGLErrorLog();
+
+    } else {
+        if (attrPos != -1 && attrUv != -1 && attrNor != -1 && animate != -1 && d.bindTransAll()) {
+            context->glEnableVertexAttribArray(attrPos);
+            context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)0);
             context->glEnableVertexAttribArray(attrNor);
-            context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
+            context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(4*sizeof(float)));
+            context->glEnableVertexAttribArray(attrUv);
+            context->glVertexAttribPointer(attrUv, 2, GL_FLOAT, false, 11 * sizeof(float), (void*)(8*sizeof(float)));
+            context->glEnableVertexAttribArray(animate);
+            context->glVertexAttribPointer(animate, 1, GL_FLOAT, false, 11 * sizeof(float), (void*)(10*sizeof(float)));
         }
+        d.bindIdxTran();
+        context->glDrawElements(d.drawMode(), d.elemCountTran(), GL_UNSIGNED_INT, 0);
 
-        if (attrCol != -1) {
-            context->glEnableVertexAttribArray(attrCol);
-            context->glVertexAttribPointer(attrCol, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)sizeof(glm::vec4));
-        }
+        if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
+        if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
+        if (attrUv != -1) context->glDisableVertexAttribArray(attrUv);
+        if (animate != -1) context->glDisableVertexAttribArray(animate);
+        context->printGLErrorLog();
     }
 
-    // Bind the index buffer and then draw shapes from it.
-    // This invokes the shader program, which accesses the vertex buffers.
-    d.bindIdx();
-    context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
-
-    if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
-    if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
-    if (attrCol != -1) context->glDisableVertexAttribArray(attrCol);
-
-    context->printGLErrorLog();
 }
 
 char* ShaderProgram::textFileRead(const char* fileName) {
@@ -301,3 +366,33 @@ void ShaderProgram::printLinkInfoLog(int prog)
         delete [] infoLog;
     }
 }
+
+//void ShaderProgram::loadTexture()
+//{
+//    useMe();
+//    context->glGenTextures(1, &textureHandle);
+//    context->glActiveTexture(GL_TEXTURE0);
+//    context->glBindTexture(GL_TEXTURE_2D, textureHandle);
+
+//    context->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//    context->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//    context->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    context->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+//    std::string texturepath = ":/minecraft_textures_all.png";
+//    QImage img(texturepath.c_str()); // Load the specified file into a QImage
+//    if (img.isNull()) {
+//        std::cout << "Invalid Image" << std::endl;
+//    }
+
+//    img = img.convertToFormat(QImage::Format_ARGB32);
+//    img = img.mirrored();
+//    this->texture = std::make_shared<QImage>(img);
+//    context->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width(), img.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, img.bits());
+
+//     unifSampler = context->glGetUniformLocation(prog, "textureSampler");
+//     if (unifSampler == -1) {
+//        std::cout << "Unif Sampler Problem Internal" << std::endl;
+//     }
+//     context->glUniform1i(unifSampler, 0);
+//}

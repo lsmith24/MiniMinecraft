@@ -15,7 +15,7 @@
 // block types, but in the scope of this project we'll never get anywhere near that many.
 enum BlockType : unsigned char
 {
-    EMPTY, GRASS, DIRT, STONE, SNOW
+    EMPTY, GRASS, DIRT, STONE, SNOW, LAVA, WATER, ICE
 };
 
 // The six cardinal directions in 3D space
@@ -50,6 +50,10 @@ private:
     // These allow us to properly determine
     std::unordered_map<Direction, Chunk*, EnumHash> m_neighbors;
 
+    int worldP_x;
+    int worldP_z;
+
+
 public:
     Chunk(OpenGLContext* context);
     BlockType getBlockAt(unsigned int x, unsigned int y, unsigned int z) const;
@@ -60,4 +64,20 @@ public:
     std::vector<glm::vec4> createFaces(std::array<bool, 6> faces, int x, int y, int z);
     void bufferData(const std::vector<glm::vec4> &interleaved, const std::vector<GLuint> &idx);
     void create() override;
+    void createVBO(
+            std::vector<glm::vec4>* posOpq,
+            std::vector<glm::vec4>* norOpq,
+            std::vector<glm::vec2>* uvOpq,
+            std::vector<float> *animOpq,
+            std::vector<GLuint>* idxOpq,
+            std::vector<glm::vec4> *posTran,
+            std::vector<glm::vec4> *norTran,
+            std::vector<glm::vec2> *uvTran,
+            std::vector<float> *animTran,
+            std::vector<GLuint>* idxTran);
+    void sendToGPU(
+            std::vector<float>* allOpq,
+            std::vector<GLuint>* idxOpq,
+            std::vector<float>* allTran,
+            std::vector<GLuint>* idxTran);
 };

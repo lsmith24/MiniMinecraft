@@ -7,6 +7,7 @@
 #include "scene/camera.h"
 #include "scene/terrain.h"
 #include "scene/player.h"
+#include "texture.h"
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
@@ -31,6 +32,9 @@ private:
 
     QTimer m_timer; // Timer linked to tick(). Fires approximately 60 times per second.
     long long lastFrame;
+
+    Texture m_texture;
+    int m_time;
 
     void moveMouseToCenter(); // Forces the mouse position to the screen's center. You should call this
                               // from within a mouse move event after reading the mouse movement so that
