@@ -74,23 +74,33 @@ std::array<bool, 6> Chunk::checkBlockFaces(int x, int y, int z) {
     return output;
 }
 
-std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int y, int z) {
+std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int y, int z){
     // Get face color based on block type.
     // All faces will use this color
     BlockType block = getBlockAt(x, y, z);
     glm::vec4 color;
+    glm::vec4 uvTop;
+    glm::vec4 uvBot;
     switch(block) {
         case GRASS:
             color = glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f;
+            uvTop  = glm::vec4(3.f, 16.f, 0.f, 0.f);
+            uvBot = glm::vec4(2.f, 16.f, 0.f, 0.f);
             break;
         case DIRT:
             color = glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f;
+            uvTop  = glm::vec4(3.f, 16.f, 0.f, 0.f);
+            uvBot = glm::vec4(2.f, 16.f, 0.f, 0.f);
             break;
         case STONE:
             color = glm::vec4(0.5f);
+            uvTop  = glm::vec4(3.f, 16.f, 0.f, 0.f);
+            uvBot = glm::vec4(2.f, 16.f, 0.f, 0.f);
             break;
         case SNOW:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+            uvTop  = glm::vec4(3.f, 16.f, 0.f, 0.f);
+            uvBot = glm::vec4(2.f, 16.f, 0.f, 0.f);
         default:
             // Other block types are not yet handled, so we default to black
             color = glm::vec4(0.f);
@@ -110,18 +120,23 @@ std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int 
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
+        //face_vbo.push_back(uvTop);
+
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
+        //face_vbo.push_back(uvBot);
         //UL
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
+        //face_vbo.push_back(uvTop);
     }
     // Left face
     if (faces[1]) {
@@ -129,18 +144,22 @@ std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int 
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
+        //face_vbo.push_back(uvTop);
         // LR
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
+        //face_vbo.push_back(uvTop);
     }
     // Top face
     if (faces[2]) {
@@ -148,18 +167,22 @@ std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int 
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
+        //face_vbo.push_back(uvTop);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
+        //face_vbo.push_back(uvTop);
     }
     // Bottom face
     if (faces[3]) {
@@ -167,18 +190,22 @@ std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int 
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
+        //face_vbo.push_back(uvTop);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
+        //face_vbo.push_back(uvTop);
     }
     // Front face
     if (faces[4]) {
@@ -186,18 +213,22 @@ std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int 
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
+        //face_vbo.push_back(uvTop);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
+        //face_vbo.push_back(uvTop);
     }
     // Back face
     if (faces[5]) {
@@ -205,18 +236,237 @@ std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int 
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
+        //face_vbo.push_back(uvTop);
         // LR
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
+        //face_vbo.push_back(uvBot);
         // UL
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
+        //face_vbo.push_back(uvTop);
+    }
+
+    return face_vbo;
+}
+
+std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x, int y, int z) {
+    // Get face color based on block type.
+    // All faces will use this color
+    BlockType block = getBlockAt(x, y, z);
+    glm::vec4 color;
+    glm::vec4 top;
+    glm::vec4 bot;
+    glm::vec4 sideTop;
+    glm::vec4 sideBot;
+    switch(block) {
+        case GRASS:
+            //color = glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f;
+            top = glm::vec4(8.f/16.f, 13.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(3.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            break;
+        case DIRT:
+            color = glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f;
+            top = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            break;
+        case STONE:
+            color = glm::vec4(0.5f);
+            top = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
+            break;
+        case SNOW:
+            color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+            top = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            break;
+        case ICE:
+            color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+            top = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            break;
+        case LAVA:
+            color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+            top = glm::vec4(14.f/16.f, 1.f/16.f, 0.f, 1.f);
+            bot = glm::vec4(14.f/16.f, 0.f/16.f, 0.f, 1.f);
+            sideTop = glm::vec4(15.f/16.f, 1.f/16.f, 0.f, 1.f);
+            sideBot = glm::vec4(15.f/16.f, 0.f/16.f, 0.f, 1.f);
+            break;
+        case WATER:
+            color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+            top = glm::vec4(14.f/16.f, 3.f/16.f, 0.f, 1.f);
+            bot = glm::vec4(14.f/16.f, 2.f/16.f, 0.f, 1.f);
+            sideTop = glm::vec4(15.f/16.f, 3.f/16.f, 0.f, 1.f);
+            sideBot = glm::vec4(15.f/16.f, 2.f/16.f, 0.f, 1.f);
+            break;
+        default:
+            // Other block types are not yet handled, so we default to black
+            color = glm::vec4(0.f);
+            break;
+    }
+
+    // Create a translation matrix based on the x, y, z components
+    glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(x, y, z));
+
+    // Copied coordinates from cube initialization.
+    // Could be done in less lines
+    std::vector<glm::vec4> face_vbo;
+
+    // Right face
+    if (faces[0]) {
+        // UR
+        face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
+        face_vbo.push_back(sideTop);
+
+        // LR
+        face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
+        face_vbo.push_back(sideBot);
+        // LL
+        face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
+        face_vbo.push_back(sideBot);
+        //UL
+        face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
+        face_vbo.push_back(sideTop);
+    }
+    // Left face
+    if (faces[1]) {
+        // UR
+        face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
+        face_vbo.push_back(sideTop);
+        // LR
+        face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
+        face_vbo.push_back(sideBot);
+        // LL
+        face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
+        face_vbo.push_back(sideBot);
+        // UL
+        face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
+        face_vbo.push_back(sideTop);
+    }
+    // Top face
+    if (faces[2]) {
+        // UR
+        face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
+        face_vbo.push_back(top);
+        // LR
+        face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
+        face_vbo.push_back(top);
+        // LL
+        face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
+        face_vbo.push_back(top);
+        // UL
+        face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
+        face_vbo.push_back(top);
+    }
+    // Bottom face
+    if (faces[3]) {
+        // UR
+        face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
+        face_vbo.push_back(bot);
+        // LR
+        face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
+        face_vbo.push_back(bot);
+        // LL
+        face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
+        face_vbo.push_back(bot);
+        // UL
+        face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
+        face_vbo.push_back(bot);
+    }
+    // Front face
+    if (faces[4]) {
+        // UR
+        face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
+        face_vbo.push_back(sideTop);
+        // LR
+        face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
+        face_vbo.push_back(sideBot);
+        // LL
+        face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
+        face_vbo.push_back(sideBot);
+        // UL
+        face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
+        face_vbo.push_back(sideTop);
+    }
+    // Back face
+    if (faces[5]) {
+        // UR
+        face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
+        face_vbo.push_back(sideTop);
+        // LR
+        face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
+        face_vbo.push_back(sideBot);
+        // LL
+        face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
+        face_vbo.push_back(sideBot);
+        // UL
+        face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
+        face_vbo.push_back(color); // Color
+        face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
+        face_vbo.push_back(sideTop);
     }
 
     return face_vbo;
@@ -238,9 +488,22 @@ void Chunk::bufferData(const std::vector<glm::vec4> &interleaved, const std::vec
     mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
 }
 
+void Chunk::bufferDataTrans(const std::vector<glm::vec4> &interleaved, const std::vector<GLuint> &idx){
+    m_count_trans = idx.size();
+
+    generateIdxTrans();
+    mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdxTrans);
+    mp_context->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_count_trans * sizeof(GLuint), idx.data(), GL_STATIC_DRAW);
+
+    generateTrans();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufTrans);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
+}
+
 void Chunk::create() {
     // Interleaved takes the form pos0col0nor0pos1col1nor1...
     std::vector<glm::vec4> interleaved;
+    std::vector<glm::vec4> interleavedTrans;
 
     // Loop through each block in the chunk array;
     // check each neighbor of the block, and add a face
@@ -255,14 +518,31 @@ void Chunk::create() {
                 // Check which faces need to be drawn
                 std::array<bool, 6> faces = checkBlockFaces(x, y, z);
                 // Generate a vector of all the interleaved face data
-                std::vector<glm::vec4> new_faces = createFaces(faces, x, y, z);
+                //std::vector<glm::vec4> new_faces = createFaces(faces, x, y, z);
+                std::vector<glm::vec4> new_faces = createFacesWithUV(faces, x, y, z);
                 // Append this vector to the current interleaved
-                interleaved.insert(std::end(interleaved), std::begin(new_faces), std::end(new_faces));
+                if(getBlockAt(x, y, z) == WATER || getBlockAt(x, y, z) == LAVA){
+                    interleavedTrans.insert(std::end(interleavedTrans), std::begin(new_faces), std::end(new_faces));
+                } else {
+                    interleaved.insert(std::end(interleaved), std::begin(new_faces), std::end(new_faces));
+                }
+
             }
         }
     }
     // Create the index buffer from the interleaved VBO
     std::vector<GLuint> idx;
+    std::vector<GLuint> idxTrans;
+
+    for(uint i = 0; i < interleavedTrans.size(); i +=4) {
+        idxTrans.push_back(i);
+        idxTrans.push_back(i+1);
+        idxTrans.push_back(i+2);
+        idxTrans.push_back(i);
+        idxTrans.push_back(i+2);
+        idxTrans.push_back(i+3);
+    }
+
     for(uint i = 0; i < interleaved.size(); i +=4) {
         idx.push_back(i);
         idx.push_back(i+1);
@@ -273,6 +553,7 @@ void Chunk::create() {
     }
 
     // Upload this data to the VBO
+    bufferDataTrans(interleavedTrans, idxTrans);
     bufferData(interleaved, idx);
 
     // Don't generate this chunk again

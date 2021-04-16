@@ -118,6 +118,7 @@ void Player::computePhysics(float dT, Terrain &terrain) {
         if(gridMarch(m_position + glm::vec3(0.f, 1.5f, 0.f), m_camera.getForward() * 3.f,
                      terrain, &oDist, &blockHit, &inter)){
             terrain.setBlockAt(blockHit.x, blockHit.y, blockHit.z, EMPTY);
+            terrain.updateChunks();
         }
         destroyBlock = false;
     }
@@ -131,13 +132,15 @@ void Player::computePhysics(float dT, Terrain &terrain) {
             BlockType ty = terrain.getBlockAt(blockHit[0], blockHit[1], blockHit[2]);
             if(blockHit[inter] < m_position[inter]){
                 blockHit[inter]++;
-                terrain.setBlockAt(blockHit.x, blockHit.y, blockHit.z, ty);
+                terrain.setBlockAt(blockHit.x, blockHit.y, blockHit.z, LAVA);
+
             } else {
                 blockHit[inter]--;
-                terrain.setBlockAt(blockHit.x, blockHit.y, blockHit.z, ty);
+                terrain.setBlockAt(blockHit.x, blockHit.y, blockHit.z, LAVA);//ty);
             }
         }
         createBlock = false;
+        terrain.updateChunks();
     }
 
     if(inFlight){
@@ -166,7 +169,7 @@ void Player::computePhysics(float dT, Terrain &terrain) {
 
         if(jumping && terrain.getBlockAt(curPos.x, curPos.y - 1, curPos.z) != EMPTY
                 && m_position.y - curPos.y < 0.01f){
-            m_velocity.y += 13.5f;
+            m_velocity.y += 30.0f;
         }
         jumping = false;
         glm::vec3 movevec = glm::vec3(glm::rotate(glm::mat4(), glm::radians(m_camera.theta), glm::vec3(0.f, 1.f, 0.f))

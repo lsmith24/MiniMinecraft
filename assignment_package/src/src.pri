@@ -18,6 +18,7 @@ SOURCES += \
     $$PWD/scene/camera.cpp \
     $$PWD/playerinfo.cpp \
     $$PWD/scene/chunk.cpp \
+    $$PWD/texture.cpp \
     $$PWD/vboworker.cpp
 
 HEADERS += \
@@ -38,4 +39,5 @@ HEADERS += \
     $$PWD/scene/camera.h \
     $$PWD/playerinfo.h \
     $$PWD/scene/chunk.h \
+    $$PWD/texture.h \
     $$PWD/vboworker.h

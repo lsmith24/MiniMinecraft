@@ -55,6 +55,7 @@ private:
     std::vector< uPtr<BlockTypeWorker> > block_workers;
     std::vector< uPtr<VBOWorker> > vbo_workers;
 
+    int time;
 
 public:
     Terrain(OpenGLContext *context);
@@ -91,6 +92,8 @@ public:
 
     std::unordered_set<int64_t> getTerrainZones();
 
+    void setTime(int t);
+
     // Fills chunk with procedural height field data
     void generateChunk(Chunk* c, int x_offset, int z_offset);
 
@@ -105,6 +108,7 @@ public:
 
     // Renders the initial 3x3 terrain generation zone before multithreading
     void CreateTestScene();
+    void CreateSmallScene();
 
     // Move chunks created from threads to the terrain chunk structure
     void updateChunks();

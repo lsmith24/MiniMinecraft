@@ -12,6 +12,7 @@
 #include <QOpenGLShaderProgram>
 #include <smartpointerhelp.h>
 #include <QDateTime>
+#include "texture.h"
 
 
 class MyGL : public OpenGLContext
@@ -23,7 +24,7 @@ private:
     ShaderProgram m_progFlat;// A shader program that uses "flat" reflection (no shadowing at all)
 
     GLuint vao; // A handle for our vertex array object. This will store the VBOs created in our geometry classes.
-                // Don't worry too much about this. Just know it is necessary in order to render geometry.
+    // Don't worry too much about this. Just know it is necessary in order to render geometry.
 
     Terrain m_terrain; // All of the Chunks that currently comprise the world.
     Player m_player; // The entity controlled by the user. Contains a camera to display what it sees as well.
@@ -32,9 +33,12 @@ private:
     QTimer m_timer; // Timer linked to tick(). Fires approximately 60 times per second.
     long long lastFrame;
 
+    Texture m_texture;
+    int m_time;
+
     void moveMouseToCenter(); // Forces the mouse position to the screen's center. You should call this
-                              // from within a mouse move event after reading the mouse movement so that
-                              // your mouse stays within the screen bounds and is always read.
+    // from within a mouse move event after reading the mouse movement so that
+    // your mouse stays within the screen bounds and is always read.
 
     void sendPlayerDataToGUI() const;
 

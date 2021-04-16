@@ -117,6 +117,7 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
                       static_cast<unsigned int>(y),
                       static_cast<unsigned int>(z - chunkOrigin.y),
                       t);
+        c->create();
     }
     else {
         throw std::out_of_range("Coordinates " + std::to_string(x) +
@@ -194,7 +195,8 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
             if (hasChunkAt(x, z)) {
                const uPtr<Chunk> &chunk = getChunkAt(x, z);
                shaderProgram->setModelMatrix(glm::translate(glm::mat4(), glm::vec3(x, 0, z)));
-               shaderProgram->drawInterleaved(*chunk);
+               shaderProgram->drawInterleavedTrans(*chunk, time);
+               shaderProgram->drawInterleavedOpaque(*chunk, time);
             }
         }
     }
@@ -216,6 +218,8 @@ void Terrain::CreateTestScene() {
             }
         }
     }
+
+
     std::cout << "Finished creating base scene in " << (QDateTime::currentMSecsSinceEpoch() - start_time) / 1000.0f << " seconds" << std::endl;
 }
 
@@ -267,4 +271,8 @@ void Terrain::updateVBOs() {
             --i;
         }
     }
+}
+
+void Terrain::setTime(int t) {
+    time = t;
 }
