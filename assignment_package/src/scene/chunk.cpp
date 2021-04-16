@@ -91,6 +91,8 @@ std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int 
             break;
         case SNOW:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+        case WATER:
+            color = glm::vec4(0.f, 0.f, 1.f, 1.f);
         default:
             // Other block types are not yet handled, so we default to black
             color = glm::vec4(0.f);

@@ -5,6 +5,7 @@
 #include <thread>
 #include <QDateTime>
 #include "math.h"
+#include "river.h"
 
 Terrain::Terrain(OpenGLContext *context)
     : m_chunks(), m_generatedTerrain(), mp_context(context),
@@ -216,6 +217,8 @@ void Terrain::CreateTestScene() {
             }
         }
     }
+    River river = River(this, 0, 0);
+    river.makeRiver();
     std::cout << "Finished creating base scene in " << (QDateTime::currentMSecsSinceEpoch() - start_time) / 1000.0f << " seconds" << std::endl;
 }
 

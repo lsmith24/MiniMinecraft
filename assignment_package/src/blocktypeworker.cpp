@@ -1,4 +1,5 @@
 #include "blocktypeworker.h"
+#include "scene/river.h"
 #include <iostream>
 
 BlockTypeWorker::BlockTypeWorker(OpenGLContext *context, Terrain *terrain, QMutex *m, int x, int z)
@@ -18,6 +19,12 @@ void BlockTypeWorker::run() {
 
         }
     }
+    River river = River(m_terrain, x_offset, z_offset);
+//    double putRiver = double(rand()) / RAND_MAX; //probability of river
+//    if (putRiver < 0.2) {
+//        river.makeRiver();
+//        std::cout << "River Created" << std::endl;
+//    }
     // Move the chunks off of the thread
     mutex->lock();
     for(unsigned int i = 0; i < chunks.size(); ++i) {
