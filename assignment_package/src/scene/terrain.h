@@ -108,6 +108,7 @@ public:
 
     // Renders the initial 3x3 terrain generation zone before multithreading
     void CreateTestScene();
+    void CreateSmallScene();
 
     // Move chunks created from threads to the terrain chunk structure
     void updateChunks();

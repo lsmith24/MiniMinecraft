@@ -18,8 +18,10 @@ protected:
                    // Instead, we use a uniform vec4 in the shader to set an overall color for the geometry
 
     bool m_idxGenerated; // Set to TRUE by generateIdx(), returned by bindIdx().
+    bool m_idxTransGenerated;
     bool m_posGenerated;
     bool m_transGenerated;
+
     bool m_norGenerated;
     bool m_colGenerated;
 
@@ -38,16 +40,19 @@ public:
     // Getter functions for various GL data
     virtual GLenum drawMode();
     int elemCount();
+    int elemTransCount();
 
     // Call these functions when you want to call glGenBuffers on the buffers stored in the Drawable
     // These will properly set the values of idxBound etc. which need to be checked in ShaderProgram::draw()
     void generateIdx();
+    void generateIdxTrans();
     void generatePos();
     void generateTrans();
     void generateNor();
     void generateCol();
 
     bool bindIdx();
+    bool bindIdxTrans();
     bool bindPos();
     bool bindTrans();
     bool bindNor();

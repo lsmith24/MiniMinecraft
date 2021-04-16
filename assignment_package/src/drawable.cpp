@@ -37,11 +37,23 @@ int Drawable::elemCount()
     return m_count;
 }
 
+int Drawable::elemTransCount()
+{
+    return m_count_trans;
+}
+
 void Drawable::generateIdx()
 {
     m_idxGenerated = true;
     // Create a VBO on our GPU and store its handle in bufIdx
     mp_context->glGenBuffers(1, &m_bufIdx);
+}
+
+void Drawable::generateIdxTrans()
+{
+    m_idxTransGenerated = true;
+    // Create a VBO on our GPU and store its handle in bufIdx
+    mp_context->glGenBuffers(1, &m_bufIdxTrans);
 }
 
 void Drawable::generatePos()
@@ -78,6 +90,14 @@ bool Drawable::bindIdx()
         mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdx);
     }
     return m_idxGenerated;
+}
+
+bool Drawable::bindIdxTrans()
+{
+    if(m_idxTransGenerated) {
+        mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdxTrans);
+    }
+    return m_idxTransGenerated;
 }
 
 bool Drawable::bindPos()

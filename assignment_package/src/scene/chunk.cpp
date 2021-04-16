@@ -262,40 +262,60 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
     // All faces will use this color
     BlockType block = getBlockAt(x, y, z);
     glm::vec4 color;
-    glm::vec4 uvTop;
-    glm::vec4 uvBot;
+    glm::vec4 top;
+    glm::vec4 bot;
+    glm::vec4 sideTop;
+    glm::vec4 sideBot;
     switch(block) {
         case GRASS:
-            color = glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f;
-            uvTop  = glm::vec4(3.f/16.f, 16.f/16.f, 0.f, 0.f);
-            uvBot = glm::vec4(2.f/16.f, 16.f/16.f, 0.f, 0.f);
+            //color = glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f;
+            top = glm::vec4(8.f/16.f, 13.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(3.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
             break;
         case DIRT:
             color = glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f;
-            uvTop  = glm::vec4(2.f/16.f, 16.f/16.f, 0.f, 0.f);
-            uvBot = glm::vec4(2.f/16.f, 16.f/16.f, 0.f, 0.f);
+            top = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
             break;
         case STONE:
             color = glm::vec4(0.5f);
-            uvTop  = glm::vec4(1.f/16.f, 16.f/16.f, 0.f, 0.f);
-            uvBot = glm::vec4(1.f/16.f, 16.f/16.f, 0.f, 0.f);
+            top = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
             break;
         case SNOW:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-            uvTop  = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
-            uvBot = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            top = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            break;
         case ICE:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-            uvTop = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
-            uvBot = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            top = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            bot = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideTop = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideBot = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            break;
         case LAVA:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-            uvTop = glm::vec4(13.f/16.f, 1.f/16.f, 0.f, 1.f);
-            uvBot = glm::vec4(13.f/16.f, 1.f/16.f, 0.f, 1.f);
+            top = glm::vec4(14.f/16.f, 1.f/16.f, 0.f, 1.f);
+            bot = glm::vec4(14.f/16.f, 0.f/16.f, 0.f, 1.f);
+            sideTop = glm::vec4(15.f/16.f, 1.f/16.f, 0.f, 1.f);
+            sideBot = glm::vec4(15.f/16.f, 0.f/16.f, 0.f, 1.f);
+            break;
         case WATER:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-            uvTop = glm::vec4(13.f/16.f, 2.f/16.f, 0.f, 1.f);
-            uvBot = glm::vec4(13.f/16.f, 2.f/16.f, 0.f, 1.f);
+            top = glm::vec4(14.f/16.f, 3.f/16.f, 0.f, 1.f);
+            bot = glm::vec4(14.f/16.f, 2.f/16.f, 0.f, 1.f);
+            sideTop = glm::vec4(15.f/16.f, 3.f/16.f, 0.f, 1.f);
+            sideBot = glm::vec4(15.f/16.f, 2.f/16.f, 0.f, 1.f);
+            break;
         default:
             // Other block types are not yet handled, so we default to black
             color = glm::vec4(0.f);
@@ -315,23 +335,23 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(sideTop);
 
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(sideBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(sideBot);
         //UL
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(sideTop);
     }
     // Left face
     if (faces[1]) {
@@ -339,22 +359,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(sideTop);
         // LR
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(sideBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(sideBot);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(sideTop);
     }
     // Top face
     if (faces[2]) {
@@ -362,22 +382,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(top);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(top);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(top);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(top);
     }
     // Bottom face
     if (faces[3]) {
@@ -385,22 +405,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(bot);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(bot);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(bot);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(bot);
     }
     // Front face
     if (faces[4]) {
@@ -408,22 +428,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(sideTop);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(sideBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(sideBot);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(sideTop);
     }
     // Back face
     if (faces[5]) {
@@ -431,22 +451,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(sideTop);
         // LR
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(sideBot);
         // LL
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
-        face_vbo.push_back(uvBot);
+        face_vbo.push_back(sideBot);
         // UL
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
-        face_vbo.push_back(uvTop);
+        face_vbo.push_back(sideTop);
     }
 
     return face_vbo;
@@ -469,14 +489,12 @@ void Chunk::bufferData(const std::vector<glm::vec4> &interleaved, const std::vec
 }
 
 void Chunk::bufferDataTrans(const std::vector<glm::vec4> &interleaved, const std::vector<GLuint> &idx){
-    m_count = idx.size();
+    m_count_trans = idx.size();
 
-    generateIdx();
-    mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdx);
-    mp_context->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_count * sizeof(GLuint), idx.data(), GL_STATIC_DRAW);
+    generateIdxTrans();
+    mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdxTrans);
+    mp_context->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_count_trans * sizeof(GLuint), idx.data(), GL_STATIC_DRAW);
 
-    // Utilizes just the position buffer for the only VBO;
-    // should probably create a separate one if it ends up matterings
     generateTrans();
     mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufTrans);
     mp_context->glBufferData(GL_ARRAY_BUFFER, interleaved.size() * sizeof(glm::vec4), interleaved.data(), GL_STATIC_DRAW);
