@@ -162,6 +162,7 @@ void Terrain::generateChunk(Chunk* c, int x_offset, int z_offset) {
             c->createBlock(x, z, x_offset, z_offset);
         }
     }
+    //c->setBlockAt(0, 180, 0, DIRT);
     c->create();
 }
 // NOTE: remove the generic terrain generation when other terrain generation is implemented
@@ -219,6 +220,9 @@ void Terrain::CreateTestScene() {
     }
     River river = River(this, 0, 0);
     river.makeRiver();
+    for (const auto& [key, value] : m_chunks) {
+        value->create();
+    }
     std::cout << "Finished creating base scene in " << (QDateTime::currentMSecsSinceEpoch() - start_time) / 1000.0f << " seconds" << std::endl;
 }
 

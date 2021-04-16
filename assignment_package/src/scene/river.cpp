@@ -32,7 +32,15 @@ void River::expandGrammer() {
 }
 
 void River::expandWidth(int x, int z, int depth, int radius) {
-    terrain->setBlockAt(30, 180, 30, DIRT);
+//    terrain->setBlockAt(0, 250, 0, DIRT);
+//    terrain->setBlockAt(30, 250, 0, DIRT);
+//    terrain->setBlockAt(0, 250, 50, DIRT);
+//    terrain->setBlockAt(30, 250, 30, DIRT);
+    for(int i = 0; i < 32; ++i){
+            terrain->setBlockAt(32, 180, i, DIRT);
+    }
+
+
     for (int i = -1 * radius; i <= radius; i++) {
         for (int j = -1 * radius; j <= radius; j++) {
             for (int k = -1 * radius; k <= radius; k++) {
@@ -41,20 +49,22 @@ void River::expandWidth(int x, int z, int depth, int radius) {
                 int terX = xPosTerr + 64;
                 int terZ = zPosTerr + 64;
 
-                std::cout << "xi: " << xi << " zj: " << zj << " r + k + 150: " << radius + k + 150 << std::endl;
+               // std::cout << "xi: " << xi << " zj: " << zj << " r + k + 150: " << radius + k + 150 << std::endl;
                 if (xPosTerr <= xi && xi < terX && zPosTerr <= zj && zj < terZ) {
                     if ((i*i + j*j + k*k) <= (radius*radius)) {
                         if (k <= -1 * depth && terrain->hasChunkAt(xi, zj)) {
-                            terrain->setBlockAt(xi, radius + k + 150, zj, DIRT);
+                            terrain->setBlockAt(xi, radius + k + 128, zj, WATER);
                         } else if (terrain->hasChunkAt(xi, zj)) {
-                            terrain->setBlockAt(xi, radius + k + 150, zj, EMPTY);
+                            terrain->setBlockAt(xi, radius + k + 128, zj, EMPTY);
                         }
                     } else if (terrain->hasChunkAt(xi, zj)){
-                        for (int d = radius + 150; d < 255; d++) {
+                        for (int d = radius + 128; d < 255; d++) {
                             if (d <= radius * 2 + 150 && terrain->hasChunkAt(xi, zj)) {
-                                terrain->setBlockAt(xi, d, zj, EMPTY);
+                                terrain->setBlockAt(xi, d, zj, WATER);
                             } else {
-                                if (terrain->getBlockAt(xi, d, zj) == EMPTY) { break; }
+                                if (terrain->getBlockAt(xi, d, zj) == EMPTY) {
+                                    break;
+                                }
                                 if (terrain->hasChunkAt(xi, zj)) {
                                     terrain->setBlockAt(xi, d, zj, EMPTY);
                                 }
@@ -65,6 +75,7 @@ void River::expandWidth(int x, int z, int depth, int radius) {
             }
         }
     }
+
 }
 
 
@@ -93,7 +104,7 @@ void River::forwardLine() {
         zRot = int(sin(curTurtle->rot) * (nextZ - curTurtle->xPos) + cos(curTurtle->rot) * (nextZ - curTurtle->zPos) + (curTurtle->zPos));
         //xRot = int(sin(curTurtle->rot) * 0.748327 + cos(curTurtle->rot));
         //zRot = int(sin(curTurtle->rot) * 0.98423 + cos(curTurtle->rot));
-        expandWidth(xPosTerr + xRot, zPosTerr + zRot, depth + 2, depth);
+        expandWidth(xPosTerr + xRot, zPosTerr + zRot, depth, depth + 3);
     }
     curTurtle->xPos = xRot;
     curTurtle->zPos = zRot;
