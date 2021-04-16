@@ -10,7 +10,9 @@ MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       m_worldAxes(this),
       m_progLambert(this), m_progFlat(this),
-      m_terrain(this), m_player(glm::vec3(48.f, 140.f, 48.f), m_terrain)
+      m_terrain(this), m_player(glm::vec3(48.f, 140.f, 48.f), m_terrain),
+      lastFrame(QDateTime::currentMSecsSinceEpoch()),
+      m_texture(this), m_time(0.f)
 {
     // Connect the timer to a function so that when the timer ticks the function is executed
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -70,6 +72,12 @@ void MyGL::initializeGL()
     // using multiple VAOs, we can just bind one once.
     glBindVertexArray(vao);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    m_texture.create(":/minecraft_textures_all.png");
+    m_texture.load(0);
+
     // Test scene no longer needed; delete later
     m_terrain.CreateTestScene();
 }
@@ -125,6 +133,10 @@ void MyGL::paintGL() {
 
     m_progFlat.setViewProjMatrix(m_player.mcr_camera.getViewProj());
     m_progLambert.setViewProjMatrix(m_player.mcr_camera.getViewProj());
+
+    m_texture.bind(0);
+    m_terrain.setTime(m_time);
+    m_time++;
 
     renderTerrain();
 

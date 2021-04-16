@@ -51,6 +51,13 @@ void Drawable::generatePos()
     mp_context->glGenBuffers(1, &m_bufPos);
 }
 
+void Drawable::generateTrans()
+{
+    m_transGenerated = true;
+    // Create a VBO on our GPU and store its handle in bufPos
+    mp_context->glGenBuffers(1, &m_bufTrans);
+}
+
 void Drawable::generateNor()
 {
     m_norGenerated = true;
@@ -79,6 +86,14 @@ bool Drawable::bindPos()
         mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufPos);
     }
     return m_posGenerated;
+}
+
+bool Drawable::bindTrans()
+{
+    if(m_transGenerated){
+        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufTrans);
+    }
+    return m_transGenerated;
 }
 
 bool Drawable::bindNor()

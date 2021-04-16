@@ -15,7 +15,7 @@
 // block types, but in the scope of this project we'll never get anywhere near that many.
 enum BlockType : unsigned char
 {
-    EMPTY, GRASS, DIRT, STONE, SNOW
+    EMPTY, GRASS, DIRT, STONE, SNOW, ICE, LAVA, WATER
 };
 
 // The six cardinal directions in 3D space
@@ -64,7 +64,9 @@ public:
     void linkNeighbor(uPtr<Chunk>& neighbor, Direction dir);
     std::array<bool, 6> checkBlockFaces(int x, int y, int z);
     std::vector<glm::vec4> createFaces(std::array<bool, 6> faces, int x, int y, int z);
+    std::vector<glm::vec4> createFacesWithUV(std::array<bool, 6> faces, int x, int y, int z);
     void bufferData(const std::vector<glm::vec4> &interleaved, const std::vector<GLuint> &idx);
+    void bufferDataTrans(const std::vector<glm::vec4> &interleaved, const std::vector<GLuint> &idx);
     void create() override;
     void create(std::vector<glm::vec4> &interleaved, std::vector<GLuint> &idx);
 

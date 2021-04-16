@@ -194,7 +194,7 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
             if (hasChunkAt(x, z)) {
                const uPtr<Chunk> &chunk = getChunkAt(x, z);
                shaderProgram->setModelMatrix(glm::translate(glm::mat4(), glm::vec3(x, 0, z)));
-               shaderProgram->drawInterleaved(*chunk);
+               shaderProgram->drawInterleavedOpaque(*chunk);
             }
         }
     }
@@ -267,4 +267,8 @@ void Terrain::updateVBOs() {
             --i;
         }
     }
+}
+
+void Terrain::setTime(int t) {
+    time = t;
 }

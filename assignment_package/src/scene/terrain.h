@@ -55,6 +55,7 @@ private:
     std::vector< uPtr<BlockTypeWorker> > block_workers;
     std::vector< uPtr<VBOWorker> > vbo_workers;
 
+    int time;
 
 public:
     Terrain(OpenGLContext *context);
@@ -90,6 +91,8 @@ public:
     void recreateChunk(int x, int y);
 
     std::unordered_set<int64_t> getTerrainZones();
+
+    void setTime(int t);
 
     // Fills chunk with procedural height field data
     void generateChunk(Chunk* c, int x_offset, int z_offset);
