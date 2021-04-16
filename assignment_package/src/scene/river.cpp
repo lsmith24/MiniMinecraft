@@ -2,7 +2,7 @@
 #include "chunk.h"
 
 River::River(Terrain *t, int xPos, int zPos) :
-    xPosTerr(xPos), zPosTerr(zPos), depth(0), length(8), iter(3), grammer("FX"),
+    xPosTerr(xPos), zPosTerr(zPos), depth(0), length(10), iter(3), grammer("FX"),
     turtles(QStack<Turtle>()), curTurtle(nullptr), terrain(t), drawingRules()
 {
     for (int i = 0; i > iter; i++) {
@@ -32,14 +32,6 @@ void River::expandGrammer() {
 }
 
 void River::expandWidth(int x, int z, int depth, int radius) {
-//    terrain->setBlockAt(0, 250, 0, DIRT);
-//    terrain->setBlockAt(30, 250, 0, DIRT);
-//    terrain->setBlockAt(0, 250, 50, DIRT);
-//    terrain->setBlockAt(30, 250, 30, DIRT);
-    for(int i = 0; i < 32; ++i){
-            terrain->setBlockAt(32, 180, i, DIRT);
-    }
-
 
     for (int i = -1 * radius; i <= radius; i++) {
         for (int j = -1 * radius; j <= radius; j++) {
@@ -51,16 +43,16 @@ void River::expandWidth(int x, int z, int depth, int radius) {
 
                // std::cout << "xi: " << xi << " zj: " << zj << " r + k + 150: " << radius + k + 150 << std::endl;
                 if (xPosTerr <= xi && xi < terX && zPosTerr <= zj && zj < terZ) {
-                    if ((i*i + j*j + k*k) <= (radius*radius)) {
+                    if ((i*i + j*j + k*k) <= (radius * radius)) {
                         if (k <= -1 * depth && terrain->hasChunkAt(xi, zj)) {
-                            terrain->setBlockAt(xi, radius + k + 128, zj, WATER);
+                            terrain->setBlockAt(xi, radius + k + 132, zj, WATER);
                         } else if (terrain->hasChunkAt(xi, zj)) {
-                            terrain->setBlockAt(xi, radius + k + 128, zj, EMPTY);
+                            terrain->setBlockAt(xi, radius + k + 132, zj, EMPTY);
                         }
                     } else if (terrain->hasChunkAt(xi, zj)){
-                        for (int d = radius + 128; d < 255; d++) {
-                            if (d <= radius * 2 + 150 && terrain->hasChunkAt(xi, zj)) {
-                                terrain->setBlockAt(xi, d, zj, WATER);
+                        for (int d = radius + 132; d < 255; d++) {
+                            if (d <= radius * 2 + 132 && terrain->hasChunkAt(xi, zj)) {
+                                terrain->setBlockAt(xi, d, zj, EMPTY);
                             } else {
                                 if (terrain->getBlockAt(xi, d, zj) == EMPTY) {
                                     break;
@@ -84,7 +76,7 @@ void River::forwardLine() {
     float nextZ;
     int xRot;
     int zRot;
-    int rLength = std::max(int(length * depth), 12);
+    int rLength = std::max(int(length * depth), 15);
     double r = double(rand()) / RAND_MAX;
 
     //want random positive or negative not actual random number
@@ -104,10 +96,11 @@ void River::forwardLine() {
         zRot = int(sin(curTurtle->rot) * (nextZ - curTurtle->xPos) + cos(curTurtle->rot) * (nextZ - curTurtle->zPos) + (curTurtle->zPos));
         //xRot = int(sin(curTurtle->rot) * 0.748327 + cos(curTurtle->rot));
         //zRot = int(sin(curTurtle->rot) * 0.98423 + cos(curTurtle->rot));
-        expandWidth(xPosTerr + xRot, zPosTerr + zRot, depth, depth + 3);
+        expandWidth(xPosTerr + xRot, zPosTerr + zRot, depth, depth + 4);
+        curTurtle->xPos = xRot;
+        curTurtle->zPos = zRot;
     }
-    curTurtle->xPos = xRot;
-    curTurtle->zPos = zRot;
+
 }
 
 
