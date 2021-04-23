@@ -36,6 +36,7 @@ public:
     void setCameraWidthHeight(unsigned int w, unsigned int h);
 
     void tick(float dT, InputBundle &input) override;
+    void flipFlightMode();
 
 //    static bool gridMarch(glm::vec3 rayOrigin, int axis, float length,
 //                       const Terrain &terrain, float *out_dist, glm::ivec3 *out_blockHit);

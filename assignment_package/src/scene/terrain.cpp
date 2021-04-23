@@ -209,13 +209,13 @@ void Terrain::CreateTestScene() {
     std::cout << "Creating base scene..." << std::endl;
     // Create the chunks of the starting area (3x3 terrain generation zones)
     // TODO: Revert this back to -64 -> 64
-    for(int x = -256; x <= 256; x += 64) {
-        for(int z = -256; z <= 256; z += 64) {
+    for(int x = -64; x <= 64; x += 64) {
+        for(int z = -64; z <= 64; z += 64) {
             m_generatedTerrain.insert(toKey(x, z));
             for(int x2 = 0; x2 < 64; x2 += 16) {
                 for(int z2 = 0; z2 < 64; z2 += 16) {
                     Chunk* c = instantiateChunkAt(x + x2, z + z2);
-//                    generateChunk(c, x + x2, z + z2);
+                    generateChunk(c, x + x2, z + z2);
                 }
             }
         }

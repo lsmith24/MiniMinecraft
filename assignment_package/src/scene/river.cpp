@@ -2,7 +2,7 @@
 #include "chunk.h"
 
 River::River(Terrain *t, int xPos, int zPos) :
-    xPosTerr(xPos), zPosTerr(zPos), depth(0), length(15), iter(3), grammer("FX"),
+    xPosTerr(xPos), zPosTerr(zPos), depth(0), length(20), iter(3), grammer("FX"),
     turtles(QStack<Turtle>()), curTurtle(), terrain(t), drawingRules()
 {
     for (int i = 0; i < iter; i++) {
@@ -65,22 +65,23 @@ void River::makeHalfCylinder(glm::ivec2 start, glm::ivec2 end, int r1, int r2) {
     int minZ = glm::min(start.y, end.y);
     int maxZ = glm::max(start.y, end.y);
     int maxRadius = glm::max(r1, r2);
-    for(int x = minX; x < maxX; ++x) {
+    for(int x = minX - maxRadius; x < maxX + maxRadius; ++x) {
         // Adjust Y iteration to account for [river_height, 255]
         // For Ys > midpoint of cylinder, test their SDF value at Y = midpoint,
         // but use actual Y when setting terrain to EMPTY
-        for(int y = 200 - maxRadius; y < 200 + maxRadius; ++y) {
-            for(int z = minZ; z < maxZ; ++z) {
+        for(int y = 130 - maxRadius; y < 256; ++y) {
+            for(int z = minZ - maxRadius; z < maxZ + maxRadius; ++z) {
                 glm::vec3 p(x, y, z);
                 //water
-                if (y <= 200) {
+                if (y <= 130) {
                     float sdf = sdRoundCone(p, glm::vec3(start.x, y, start.y), glm::vec3(end.x, y, end.y), r1, r2);
                     if(sdf <= 0) {
                         terrain->setBlockAt(x, y, z, WATER);
                     }
-                } else if (y > 200) {
-                    //empty, pretend y = 200
-                    float sdf = sdRoundCone(p, glm::vec3(start.x, 200, start.y), glm::vec3(end.x, 200, end.y), r1, r2);
+                } else if (y > 130) {
+                    //empty, pretend y =120
+                    glm::vec3 p2(x, 130, z);
+                    float sdf = sdRoundCone(p2, glm::vec3(start.x, 130, start.y), glm::vec3(end.x, 130, end.y), r1, r2);
                     if(sdf <= 0) {
                         terrain->setBlockAt(x, y, z, EMPTY);
                     }
@@ -148,18 +149,6 @@ void River::forwardLine() {
                      glm::ivec2(cylX, cylZ),
                      2, 1);
 
-    for (int i = 0; i < length; i++) {
-
-        float xt = curTurtle.xPos + dir.x * i;
-        float zt = curTurtle.zPos + dir.y * i;
-//        makeHalfCylinder(glm::ivec2(curTurtle.xPos, curTurtle.zPos),
-//                         glm::ivec2(xt, zt),
-//                         1, 1);
-
-//        expandWidth(xPosTerr + xt, zPosTerr + zt, depth, 1);
-        terrain->setBlockAt(xPosTerr + xt, 200, zPosTerr + zt, WATER);
-    }
-
     curTurtle.xPos = nextX;
     curTurtle.zPos = nextZ;
 }
@@ -187,7 +176,6 @@ void River::makeRiver() {
             break;
         case '[':
             turtles.push(curTurtle);
-            //curTurtle = &turtles.top();
             break;
         case ']':
             if (!turtles.isEmpty()) {
