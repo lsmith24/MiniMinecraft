@@ -2,10 +2,10 @@
 #include "chunk.h"
 
 River::River(Terrain *t, int xPos, int zPos) :
-    xPosTerr(xPos), zPosTerr(zPos), depth(0), length(10), iter(3), grammer("FX"),
-    turtles(QStack<Turtle>()), curTurtle(nullptr), terrain(t), drawingRules()
+    xPosTerr(xPos), zPosTerr(zPos), depth(0), length(15), iter(3), grammer("FX"),
+    turtles(QStack<Turtle>()), curTurtle(), terrain(t), drawingRules()
 {
-    for (int i = 0; i > iter; i++) {
+    for (int i = 0; i < iter; i++) {
         expandGrammer();
     }
 }
@@ -31,7 +31,71 @@ void River::expandGrammer() {
     this->grammer = str;
 }
 
+float dot2(glm::vec2 v ) { return glm::dot(v,v); }
+float dot2(glm::vec3 v ) { return glm::dot(v,v); }
+float sdRoundCone(glm::vec3 p, glm::vec3 a, glm::vec3 b, float r1, float r2)
+{
+    // sampling independent computations (only depend on shape)
+    glm::vec3  ba = b - a;
+    float l2 = glm::dot(ba,ba);
+    float rr = r1 - r2;
+    float a2 = l2 - rr*rr;
+    float il2 = 1.0/l2;
+
+    // sampling dependant computations
+    glm::vec3 pa = p - a;
+    float y = glm::dot(pa,ba);
+    float z = y - l2;
+    float x2 = dot2( pa*l2 - ba*y );
+    float y2 = y*y*l2;
+    float z2 = z*z*l2;
+
+    // single square root!
+    float k = glm::sign(rr)*rr*rr*x2;
+    if( glm::sign(z)*a2*z2 > k ) return  sqrt(x2 + z2)        *il2 - r2;
+    if( glm::sign(y)*a2*y2 < k ) return  sqrt(x2 + y2)        *il2 - r1;
+                            return (sqrt(x2*a2*il2)+y*rr)*il2 - r1;
+}
+
+
+void River::makeHalfCylinder(glm::ivec2 start, glm::ivec2 end, int r1, int r2) {
+    //1. Make an axis-aligned bounding box for our line b/t start and end
+    int minX = glm::min(start.x, end.x);
+    int maxX = glm::max(start.x, end.x);
+    int minZ = glm::min(start.y, end.y);
+    int maxZ = glm::max(start.y, end.y);
+    int maxRadius = glm::max(r1, r2);
+    for(int x = minX; x < maxX; ++x) {
+        // Adjust Y iteration to account for [river_height, 255]
+        // For Ys > midpoint of cylinder, test their SDF value at Y = midpoint,
+        // but use actual Y when setting terrain to EMPTY
+        for(int y = 200 - maxRadius; y < 200 + maxRadius; ++y) {
+            for(int z = minZ; z < maxZ; ++z) {
+                glm::vec3 p(x, y, z);
+                //water
+                if (y <= 200) {
+                    float sdf = sdRoundCone(p, glm::vec3(start.x, y, start.y), glm::vec3(end.x, y, end.y), r1, r2);
+                    if(sdf <= 0) {
+                        terrain->setBlockAt(x, y, z, WATER);
+                    }
+                } else if (y > 200) {
+                    //empty, pretend y = 200
+                    float sdf = sdRoundCone(p, glm::vec3(start.x, 200, start.y), glm::vec3(end.x, 200, end.y), r1, r2);
+                    if(sdf <= 0) {
+                        terrain->setBlockAt(x, y, z, EMPTY);
+                    }
+                }
+            }
+        }
+    }
+}
+
+//NOT USING
 void River::expandWidth(int x, int z, int depth, int radius) {
+
+    // Iterate over XYZ axes within -radius to +radius
+    // If XYZ is within the actual radius of the sphere,
+    // set the block to WATER
 
     for (int i = -1 * radius; i <= radius; i++) {
         for (int j = -1 * radius; j <= radius; j++) {
@@ -45,20 +109,20 @@ void River::expandWidth(int x, int z, int depth, int radius) {
                 if (xPosTerr <= xi && xi < terX && zPosTerr <= zj && zj < terZ) {
                     if ((i*i + j*j + k*k) <= (radius * radius)) {
                         if (k <= -1 * depth && terrain->hasChunkAt(xi, zj)) {
-                            terrain->setBlockAt(xi, radius + k + 132, zj, WATER);
+                            terrain->setBlockAt(xi, radius + k + 200, zj, WATER);
                         } else if (terrain->hasChunkAt(xi, zj)) {
-                            terrain->setBlockAt(xi, radius + k + 132, zj, EMPTY);
+                            terrain->setBlockAt(xi, radius + k + 200, zj, WATER);
                         }
                     } else if (terrain->hasChunkAt(xi, zj)){
-                        for (int d = radius + 132; d < 255; d++) {
-                            if (d <= radius * 2 + 132 && terrain->hasChunkAt(xi, zj)) {
-                                terrain->setBlockAt(xi, d, zj, EMPTY);
+                        for (int d = radius + 200; d < 255; d++) {
+                            if (d <= radius * 2 + 200 && terrain->hasChunkAt(xi, zj)) {
+                                terrain->setBlockAt(xi, d, zj, WATER);
                             } else {
-                                if (terrain->getBlockAt(xi, d, zj) == EMPTY) {
+                                if (terrain->getBlockAt(xi, d, zj) == WATER) {
                                     break;
                                 }
                                 if (terrain->hasChunkAt(xi, zj)) {
-                                    terrain->setBlockAt(xi, d, zj, EMPTY);
+                                    terrain->setBlockAt(xi, d, zj, WATER);
                                 }
                             }
                         }
@@ -67,54 +131,44 @@ void River::expandWidth(int x, int z, int depth, int radius) {
             }
         }
     }
-
 }
 
 
 void River::forwardLine() {
     float nextX;
     float nextZ;
-    int xRot;
-    int zRot;
-    int rLength = std::max(int(length * depth), 15);
-    double r = double(rand()) / RAND_MAX;
 
-    //want random positive or negative not actual random number
-    if (r >= 0.5) {
-        r = 1;
-    } else {
-        r = -1;
+    nextX = curTurtle.xPos + length * cos(glm::radians(curTurtle.rot));
+    nextZ = curTurtle.zPos + length * sin(glm::radians(curTurtle.rot));
+    glm::vec2 dir = glm::normalize(glm::vec2(length * cos(glm::radians(curTurtle.rot)), length * sin(glm::radians(curTurtle.rot))));
+
+    float cylX = curTurtle.xPos + dir.x * length;
+    float cylZ = curTurtle.zPos + dir.y * length;
+    makeHalfCylinder(glm::ivec2(curTurtle.xPos, curTurtle.zPos),
+                     glm::ivec2(cylX, cylZ),
+                     2, 1);
+
+    for (int i = 0; i < length; i++) {
+
+        float xt = curTurtle.xPos + dir.x * i;
+        float zt = curTurtle.zPos + dir.y * i;
+//        makeHalfCylinder(glm::ivec2(curTurtle.xPos, curTurtle.zPos),
+//                         glm::ivec2(xt, zt),
+//                         1, 1);
+
+//        expandWidth(xPosTerr + xt, zPosTerr + zt, depth, 1);
+        terrain->setBlockAt(xPosTerr + xt, 200, zPosTerr + zt, WATER);
     }
 
-    for (int i = 0; i < rLength; i++) {
-        float step = i * 2 * pi / rLength;
-        float os = r * sin(step) * depth; //os -> offset
-
-        nextX = curTurtle->xPos + os;
-        nextZ = curTurtle->zPos + i;
-        xRot = int(cos(curTurtle->rot) * (nextX - curTurtle->xPos) - sin(curTurtle->rot) * (nextZ - curTurtle->zPos) + (curTurtle->xPos));
-        zRot = int(sin(curTurtle->rot) * (nextZ - curTurtle->xPos) + cos(curTurtle->rot) * (nextZ - curTurtle->zPos) + (curTurtle->zPos));
-        //xRot = int(sin(curTurtle->rot) * 0.748327 + cos(curTurtle->rot));
-        //zRot = int(sin(curTurtle->rot) * 0.98423 + cos(curTurtle->rot));
-        expandWidth(xPosTerr + xRot, zPosTerr + zRot, depth, depth + 4);
-        curTurtle->xPos = xRot;
-        curTurtle->zPos = zRot;
-    }
-
+    curTurtle.xPos = nextX;
+    curTurtle.zPos = nextZ;
 }
 
 
 void River::makeRiver() {
-    Turtle turtle = Turtle();
-    turtles.push(turtle);
-    curTurtle = &(turtles.top());
+    curTurtle = Turtle();
 
     for (int i = 0; i < int(grammer.length()); i++) {
-
-        float n = 30 + rand() % 21;
-        Turtle t = Turtle();
-        t.setComps(curTurtle->xPos, curTurtle->zPos, curTurtle->rot);
-
         switch(grammer[i]) {
         case 'X':
             break;
@@ -126,21 +180,19 @@ void River::makeRiver() {
             }
             break;
         case '+':
-            curTurtle->rot += n * pi / 180.f;
+            curTurtle.rot += 45.f; //n * pi / 180.f;
             break;
         case '-':
-            curTurtle->rot -= n * pi / 180.f;
+            curTurtle.rot -= 45.f; //n * pi / 180.f;
             break;
         case '[':
-            turtles.push(t);
-            curTurtle = &turtles.top();
+            turtles.push(curTurtle);
+            //curTurtle = &turtles.top();
             break;
         case ']':
             if (!turtles.isEmpty()) {
-                turtles.pop();
+                curTurtle = turtles.pop();
             }
-
-            curTurtle = &turtles.top();
             break;
         }
     }

@@ -178,8 +178,9 @@ void Terrain::expandChunks(const Player &player) {
             int new_z = player_z + z;
 
             // If the key is not in the set, add it and generate the new terrain zone
-            if (m_generatedTerrain.count(toKey(new_x, new_z)) <= 0) {
-               m_generatedTerrain.insert(toKey(new_x, new_z));
+            uint64_t key = toKey(new_x, new_z);
+            if (m_generatedTerrain.count(key) == 0) {
+               m_generatedTerrain.insert(key);
                // Spawn a worker thread to create the chunk and its blocks
                block_workers.push_back(mkU<BlockTypeWorker>(BlockTypeWorker(mp_context, this, &chunk_mtx, new_x, new_z)));
                thread_pool->start(block_workers.back().get());
@@ -207,13 +208,14 @@ void Terrain::CreateTestScene() {
     qint64 start_time = QDateTime::currentMSecsSinceEpoch();
     std::cout << "Creating base scene..." << std::endl;
     // Create the chunks of the starting area (3x3 terrain generation zones)
-    for(int x = -64; x <= 64; x += 64) {
-        for(int z = -64; z <= 64; z += 64) {
+    // TODO: Revert this back to -64 -> 64
+    for(int x = -256; x <= 256; x += 64) {
+        for(int z = -256; z <= 256; z += 64) {
             m_generatedTerrain.insert(toKey(x, z));
             for(int x2 = 0; x2 < 64; x2 += 16) {
                 for(int z2 = 0; z2 < 64; z2 += 16) {
                     Chunk* c = instantiateChunkAt(x + x2, z + z2);
-                    generateChunk(c, x + x2, z + z2);
+//                    generateChunk(c, x + x2, z + z2);
                 }
             }
         }

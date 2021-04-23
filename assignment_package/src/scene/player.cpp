@@ -108,7 +108,7 @@ void Player::processInputs(InputBundle &inputs) {
 }
 
 void Player::computePhysics(float dT, Terrain &terrain) {
-
+    dT = glm::min(dT, 1.f);
     //Block
     //Destory
     if(destroyBlock){

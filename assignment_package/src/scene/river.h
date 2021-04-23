@@ -17,13 +17,14 @@ public:
     int iter;
     std::string grammer;
     QStack<Turtle> turtles;
-    Turtle *curTurtle;
+    Turtle curTurtle;
     Terrain *terrain;
 
     typedef void (*Rule)(void);
     QMap<char, Rule> drawingRules;
     void expandGrammer();
     void expandWidth(int x, int z, int depth, int radius);
+    void makeHalfCylinder(glm::ivec2 start, glm::ivec2 end, int r1, int r2);
     void forwardLine();
     void makeRiver();
 
