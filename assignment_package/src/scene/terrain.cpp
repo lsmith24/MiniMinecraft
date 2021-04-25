@@ -5,6 +5,7 @@
 #include <thread>
 #include <QDateTime>
 #include "math.h"
+#include "river.h"
 
 Terrain::Terrain(OpenGLContext *context)
     : m_chunks(), m_generatedTerrain(), mp_context(context),
@@ -162,6 +163,7 @@ void Terrain::generateChunk(Chunk* c, int x_offset, int z_offset) {
             c->createBlock(x, z, x_offset, z_offset);
         }
     }
+    //c->setBlockAt(0, 180, 0, DIRT);
     c->create();
 }
 // NOTE: remove the generic terrain generation when other terrain generation is implemented
@@ -177,8 +179,9 @@ void Terrain::expandChunks(const Player &player) {
             int new_z = player_z + z;
 
             // If the key is not in the set, add it and generate the new terrain zone
-            if (m_generatedTerrain.count(toKey(new_x, new_z)) <= 0) {
-               m_generatedTerrain.insert(toKey(new_x, new_z));
+            uint64_t key = toKey(new_x, new_z);
+            if (m_generatedTerrain.count(key) == 0) {
+               m_generatedTerrain.insert(key);
                // Spawn a worker thread to create the chunk and its blocks
                block_workers.push_back(mkU<BlockTypeWorker>(BlockTypeWorker(mp_context, this, &chunk_mtx, new_x, new_z)));
                thread_pool->start(block_workers.back().get());
@@ -207,6 +210,7 @@ void Terrain::CreateTestScene() {
     qint64 start_time = QDateTime::currentMSecsSinceEpoch();
     std::cout << "Creating base scene..." << std::endl;
     // Create the chunks of the starting area (3x3 terrain generation zones)
+    // TODO: Revert this back to -64 -> 64
     for(int x = -64; x <= 64; x += 64) {
         for(int z = -64; z <= 64; z += 64) {
             m_generatedTerrain.insert(toKey(x, z));
@@ -219,6 +223,11 @@ void Terrain::CreateTestScene() {
         }
     }
 
+    River river = River(this, 0, 0);
+    river.makeRiver();
+    for (const auto& [key, value] : m_chunks) {
+        value->create();
+    }
 
     std::cout << "Finished creating base scene in " << (QDateTime::currentMSecsSinceEpoch() - start_time) / 1000.0f << " seconds" << std::endl;
 }

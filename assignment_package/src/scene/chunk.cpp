@@ -101,6 +101,12 @@ std::vector<glm::vec4> Chunk::createFaces(std::array<bool, 6> faces, int x, int 
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
             uvTop  = glm::vec4(3.f, 16.f, 0.f, 0.f);
             uvBot = glm::vec4(2.f, 16.f, 0.f, 0.f);
+            break;
+        case WATER:
+            color = glm::vec4(0.f, 0.f, 1.f, 1.f);
+            uvTop  = glm::vec4(3.f, 16.f, 0.f, 0.f);
+            uvBot = glm::vec4(2.f, 16.f, 0.f, 0.f);
+            break;
         default:
             // Other block types are not yet handled, so we default to black
             color = glm::vec4(0.f);
