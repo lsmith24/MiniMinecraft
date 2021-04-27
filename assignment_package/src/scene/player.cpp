@@ -150,7 +150,7 @@ void Player::computePhysics(float dT, Terrain &terrain) {
 
     if(inFlight){
         m_velocity *= 0.95f;
-        m_velocity += m_acceleration * dT * 0.05f;
+        m_velocity += m_acceleration * dT * 0.7f;
         glm::vec3 dP = m_velocity * dT;
         //glm::vec3 movevec = this->m_right * dP.x + this->m_up * dP.y + this->m_forward * dP.z;
         glm::vec3 movevec = glm::vec3(glm::rotate(glm::mat4(), glm::radians(m_camera.theta), glm::vec3(0.f, 1.f, 0.f))
