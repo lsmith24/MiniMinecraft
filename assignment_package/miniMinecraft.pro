@@ -3,7 +3,7 @@ QT += core widgets
 TARGET = MiniMinecraft
 TEMPLATE = app
 CONFIG += console
-CONFIG += c++20
+CONFIG += c++1z
 win32 {
     LIBS += -lopengl32
 #    LIBS += -lglut32

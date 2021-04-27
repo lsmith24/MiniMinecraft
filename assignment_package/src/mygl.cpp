@@ -182,8 +182,8 @@ void MyGL::keyPressEvent(QKeyEvent *e) {
     } else if (e->key() == Qt::Key_Space) {
         m_inputs.spacePressed = true;
     } else if (e->key() == Qt::Key_F) {
-//        m_inputs.fPressed = true;
-        m_player.flipFlightMode();
+        m_inputs.fPressed = true;
+        //m_player.flipFlightMode();
     }
 }
 
@@ -203,7 +203,7 @@ void MyGL::keyReleaseEvent(QKeyEvent *e) {
     } else if (e->key() == Qt::Key_Space) {
         m_inputs.spacePressed = false;
     } else if (e->key() == Qt::Key_F) {
-//        m_inputs.fPressed = false;
+        m_inputs.fPressed = false;
     }
 }
 
@@ -215,8 +215,10 @@ void MyGL::mouseMoveEvent(QMouseEvent *e) {
 void MyGL::mousePressEvent(QMouseEvent *e) {
     if (e->button() == Qt::RightButton) {
         m_inputs.rightClick = true;
+        //m_terrain.getChunkAt(m_player.mcr_position.x, m_player.mcr_position.z)->create();
     } else if (e->button() == Qt::LeftButton) {
         m_inputs.leftClick = true;
+        //m_terrain.getChunkAt(m_player.mcr_position.x, m_player.mcr_position.z)->create();
     }
 }
 

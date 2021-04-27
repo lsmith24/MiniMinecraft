@@ -21,8 +21,8 @@ in vec4 fs_Pos;
 in vec4 fs_Nor;
 in vec4 fs_LightVec;
 in vec4 fs_Col;
-in vec2 fs_UV;
-in float fs_animate;
+in vec4 fs_UV;
+//in float fs_animate;
 
 out vec4 out_Col; // This is the final output color that you will see on your
 // screen for the pixel that is currently being processed.
@@ -76,18 +76,17 @@ void main()
 {
     // Material base color (before shading)
     vec4 diffuseColor = fs_Col;
-    vec2 uv = fs_UV;
-    float animate = fs_animate;
-    if (animate != 0.0f) {
-//        if (fs_Nor[0] != 0.0f || fs_Nor[2] != 0.0f) {
-//            uv = vec2(uv.x + mod(u_Time / 8000.f, 1.f / 16.f), uv.y );
-//        } else {
-//            uv = vec2(uv.x + mod(u_Time / 8000.f, 1.f / 16.f), uv.y);
-//        }
-        uv = vec2(uv.x + mod(u_Time / 8000.f, 1.f / 16.f), uv.y);
+    vec4 uv = fs_UV;
+    if (uv.z > 0.0f) {
+        if (fs_Nor[0] != 0.0f || fs_Nor[2] != 0.0f) {
+            uv = vec4(uv.x + mod(u_Time / 8000.f, 1.f / 16.f), uv.y, uv.z, uv.w);
+        } else {
+            uv = vec4(uv.x + mod(u_Time / 8000.f, 1.f / 16.f), uv.y, uv.z, uv.w);
+        }
+        //uv = vec4(uv.x + mod(u_Time / 8000.f, 1.f / 16.f), uv.y, uv.z, uv.w);
     }
     //diffuseColor = diffuseColor * (0.5 * fbm(fs_Pos.xyz) + 0.5);
-    diffuseColor = texture(u_Texture, uv);
+    diffuseColor = texture(u_Texture, vec2(uv.x, uv.y));
 
     // Calculate the diffuse term for Lambert shading
     float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));

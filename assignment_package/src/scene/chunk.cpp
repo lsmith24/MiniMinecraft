@@ -268,59 +268,127 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
     // All faces will use this color
     BlockType block = getBlockAt(x, y, z);
     glm::vec4 color;
-    glm::vec4 top;
-    glm::vec4 bot;
-    glm::vec4 sideTop;
-    glm::vec4 sideBot;
+    glm::vec4 sideUL;
+    glm::vec4 sideUR;
+    glm::vec4 sideLL;
+    glm::vec4 sideLR;
+    glm::vec4 topUL;
+    glm::vec4 topUR;
+    glm::vec4 topLL;
+    glm::vec4 topLR;
+    glm::vec4 botUL;
+    glm::vec4 botUR;
+    glm::vec4 botLL;
+    glm::vec4 botLR;
+
+
+
+
     switch(block) {
         case GRASS:
-            //color = glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f;
-            top = glm::vec4(8.f/16.f, 13.f/16.f, 0.f, 0.f);
-            bot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
-            sideTop = glm::vec4(3.f/16.f, 15.f/16.f, 0.f, 0.f);
-            sideBot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            color = glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f;
+            sideUL = glm::vec4(3.f/16.f, 16.f/16.f, -1.f, 1.f);
+            sideUR = glm::vec4(4.f/16.f, 16.f/16.f, -1.f, 1.f);
+            sideLL = glm::vec4(2.f/16.f, 15.f/16.f, -1.f, 1.f);
+            sideLR = glm::vec4(3.f/16.f, 15.f/16.f, -1.f, 1.f);
+            topUL = glm::vec4(8.f/16.f, 14.f/16.f, -1.f, 1.f);
+            topUR = glm::vec4(9.f/16.f, 14.f/16.f, -1.f, 1.f);
+            topLL = glm::vec4(8.f/16.f, 13.f/16.f, -1.f, 1.f);
+            topLR = glm::vec4(9.f/16.f, 13.f/16.f, -1.f, 1.f);
+            botUL = glm::vec4(2.f/16.f, 16.f/16.f, -1.f, 1.f);
+            botUR = glm::vec4(3.f/16.f, 16.f/16.f, -1.f, 1.f);
+            botLL = glm::vec4(2.f/16.f, 15.f/16.f, -1.f, 1.f);
+            botLR = glm::vec4(3.f/16.f, 15.f/16.f, -1.f, 1.f);
             break;
         case DIRT:
             color = glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f;
-            top = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
-            bot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
-            sideTop = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
-            sideBot = glm::vec4(2.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideUL = glm::vec4(2.f/16.f, 16.f/16.f, -1.f, 1.f);
+            sideUR = glm::vec4(3.f/16.f, 16.f/16.f, -1.f, 1.f);
+            sideLL = glm::vec4(2.f/16.f, 15.f/16.f, -1.f, 1.f);
+            sideLR = glm::vec4(3.f/16.f, 15.f/16.f, -1.f, 1.f);
+            topUL = glm::vec4(2.f/16.f, 14.f/16.f, -1.f, 1.f);
+            topUR = glm::vec4(3.f/16.f, 14.f/16.f, -1.f, 1.f);
+            topLL = glm::vec4(2.f/16.f, 13.f/16.f, -1.f, 1.f);
+            topLR = glm::vec4(3.f/16.f, 13.f/16.f, -1.f, 1.f);
+            botUL = glm::vec4(2.f/16.f, 16.f/16.f, -1.f, 1.f);
+            botUR = glm::vec4(3.f/16.f, 16.f/16.f, -1.f, 1.f);
+            botLL = glm::vec4(2.f/16.f, 15.f/16.f, -1.f, 1.f);
+            botLR = glm::vec4(3.f/16.f, 15.f/16.f, -1.f, 1.f);
             break;
         case STONE:
             color = glm::vec4(0.5f);
-            top = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
-            bot = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
-            sideTop = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
-            sideBot = glm::vec4(1.f/16.f, 15.f/16.f, 0.f, 0.f);
+            sideUL = glm::vec4(1.f/16.f, 16.f/16.f, -1.f, 1.f);
+            sideUR = glm::vec4(2.f/16.f, 16.f/16.f, -1.f, 1.f);
+            sideLL = glm::vec4(1.f/16.f, 15.f/16.f, -1.f, 1.f);
+            sideLR = glm::vec4(2.f/16.f, 15.f/16.f, -1.f, 1.f);
+            topUL = glm::vec4(1.f/16.f, 16.f/16.f, -1.f, 1.f);
+            topUR = glm::vec4(2.f/16.f, 16.f/16.f, -1.f, 1.f);
+            topLL = glm::vec4(1.f/16.f, 15.f/16.f, -1.f, 1.f);
+            topLR = glm::vec4(2.f/16.f, 15.f/16.f, -1.f, 1.f);
+            botUL = glm::vec4(1.f/16.f, 16.f/16.f, -1.f, 1.f);
+            botUR = glm::vec4(2.f/16.f, 16.f/16.f, -1.f, 1.f);
+            botLL = glm::vec4(1.f/16.f, 15.f/16.f, -1.f, 1.f);
+            botLR = glm::vec4(2.f/16.f, 15.f/16.f, -1.f, 1.f);
             break;
         case SNOW:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-            top = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
-            bot = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
-            sideTop = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
-            sideBot = glm::vec4(2.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideUL = glm::vec4(2.f/16.f, 12.f/16.f, -1.f, 1.f);
+            sideUR = glm::vec4(3.f/16.f, 12.f/16.f, -1.f, 1.f);
+            sideLL = glm::vec4(2.f/16.f, 11.f/16.f, -1.f, 1.f);
+            sideLR = glm::vec4(3.f/16.f, 11.f/16.f, -1.f, 1.f);
+            topUL = glm::vec4(2.f/16.f, 12.f/16.f, -1.f, 1.f);
+            topUR = glm::vec4(3.f/16.f, 12.f/16.f, -1.f, 1.f);
+            topLL = glm::vec4(2.f/16.f, 11.f/16.f, -1.f, 1.f);
+            topLR = glm::vec4(3.f/16.f, 11.f/16.f, -1.f, 1.f);
+            botUL = glm::vec4(2.f/16.f, 12.f/16.f, -1.f, 1.f);
+            botUR = glm::vec4(3.f/16.f, 12.f/16.f, -1.f, 1.f);
+            botLL = glm::vec4(2.f/16.f, 11.f/16.f, -1.f, 1.f);
+            botLR = glm::vec4(3.f/16.f, 11.f/16.f, -1.f, 1.f);
             break;
         case ICE:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-            top = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
-            bot = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
-            sideTop = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
-            sideBot = glm::vec4(3.f/16.f, 11.f/16.f, 0.f, 0.f);
+            sideUL = glm::vec4(3.f/16.f, 12.f/16.f, -1.f, 1.f);
+            sideUR = glm::vec4(4.f/16.f, 12.f/16.f, -1.f, 1.f);
+            sideLL = glm::vec4(3.f/16.f, 11.f/16.f, -1.f, 1.f);
+            sideLR = glm::vec4(4.f/16.f, 11.f/16.f, -1.f, 1.f);
+            topUL = glm::vec4(3.f/16.f, 12.f/16.f, -1.f, 1.f);
+            topUR = glm::vec4(4.f/16.f, 12.f/16.f, -1.f, 1.f);
+            topLL = glm::vec4(3.f/16.f, 11.f/16.f, -1.f, 1.f);
+            topLR = glm::vec4(4.f/16.f, 11.f/16.f, -1.f, 1.f);
+            botUL = glm::vec4(3.f/16.f, 12.f/16.f, -1.f, 1.f);
+            botUR = glm::vec4(4.f/16.f, 12.f/16.f, -1.f, 1.f);
+            botLL = glm::vec4(3.f/16.f, 11.f/16.f, -1.f, 1.f);
+            botLR = glm::vec4(4.f/16.f, 11.f/16.f, -1.f, 1.f);
             break;
         case LAVA:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-            top = glm::vec4(14.f/16.f, 1.f/16.f, 0.f, 1.f);
-            bot = glm::vec4(14.f/16.f, 0.f/16.f, 0.f, 1.f);
-            sideTop = glm::vec4(15.f/16.f, 1.f/16.f, 0.f, 1.f);
-            sideBot = glm::vec4(15.f/16.f, 0.f/16.f, 0.f, 1.f);
+            sideUL = glm::vec4(13.f/16.f, 1.f/16.f, 1.f, 1.f);
+            sideUR = glm::vec4(14.f/16.f, 2.f/16.f, 1.f, 1.f);
+            sideLL = glm::vec4(13.f/16.f, 1.f/16.f, 1.f, 1.f);
+            sideLR = glm::vec4(14.f/16.f, 2.f/16.f, 1.f, 1.f);
+            topUL = glm::vec4(14.f/16.f, 1.f/16.f, 1.f, 1.f);
+            topUR = glm::vec4(15.f/16.f, 2.f/16.f, 1.f, 1.f);
+            topLL = glm::vec4(14.f/16.f, 1.f/16.f, 1.f, 1.f);
+            topLR = glm::vec4(15.f/16.f, 2.f/16.f, 1.f, 1.f);
+            botUL = glm::vec4(15.f/16.f, 1.f/16.f, 1.f, 1.f);
+            botUR = glm::vec4(16.f/16.f, 2.f/16.f, 1.f, 1.f);
+            botLL = glm::vec4(15.f/16.f, 1.f/16.f, 1.f, 1.f);
+            botLR = glm::vec4(16.f/16.f, 2.f/16.f, 1.f, 1.f);
             break;
         case WATER:
             color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-            top = glm::vec4(14.f/16.f, 3.f/16.f, 0.f, 1.f);
-            bot = glm::vec4(14.f/16.f, 2.f/16.f, 0.f, 1.f);
-            sideTop = glm::vec4(15.f/16.f, 3.f/16.f, 0.f, 1.f);
-            sideBot = glm::vec4(15.f/16.f, 2.f/16.f, 0.f, 1.f);
+            sideUL = glm::vec4(13.f/16.f, 3.f/16.f, 1.f, 1.f);
+            sideUR = glm::vec4(14.f/16.f, 4.f/16.f, 1.f, 1.f);
+            sideLL = glm::vec4(13.f/16.f, 3.f/16.f, 1.f, 1.f);
+            sideLR = glm::vec4(14.f/16.f, 4.f/16.f, 1.f, 1.f);
+            topUL = glm::vec4(14.f/16.f, 3.f/16.f, 1.f, 1.f);
+            topUR = glm::vec4(14.f/16.f, 4.f/16.f, 1.f, 1.f);
+            topLL = glm::vec4(14.f/16.f, 3.f/16.f, 1.f, 1.f);
+            topLR = glm::vec4(15.f/16.f, 4.f/16.f, 1.f, 1.f);
+            botUL = glm::vec4(15.f/16.f, 3.f/16.f, 1.f, 1.f);
+            botUR = glm::vec4(16.f/16.f, 4.f/16.f, 1.f, 1.f);
+            botLL = glm::vec4(15.f/16.f, 3.f/16.f, 1.f, 1.f);
+            botLR = glm::vec4(16.f/16.f, 4.f/16.f, 1.f, 1.f);
             break;
         default:
             // Other block types are not yet handled, so we default to black
@@ -341,23 +409,25 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
-        face_vbo.push_back(sideTop);
+        face_vbo.push_back(sideUR); //UV
 
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
-        face_vbo.push_back(sideBot);
+        face_vbo.push_back(sideLR);
+
         // LL
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
-        face_vbo.push_back(sideBot);
+        face_vbo.push_back(sideLL);
+
         //UL
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(1,0,0,0)); // Normal
-        face_vbo.push_back(sideTop);
+        face_vbo.push_back(sideUL);
     }
     // Left face
     if (faces[1]) {
@@ -365,22 +435,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
-        face_vbo.push_back(sideTop);
+        face_vbo.push_back(sideUR);
         // LR
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
-        face_vbo.push_back(sideBot);
+        face_vbo.push_back(sideLR);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
-        face_vbo.push_back(sideBot);
+        face_vbo.push_back(sideLL);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(-1,0,0,0)); // Normal
-        face_vbo.push_back(sideTop);
+        face_vbo.push_back(sideUL);
     }
     // Top face
     if (faces[2]) {
@@ -388,22 +458,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
-        face_vbo.push_back(top);
+        face_vbo.push_back(topUR);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
-        face_vbo.push_back(top);
+        face_vbo.push_back(topLR);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
-        face_vbo.push_back(top);
+        face_vbo.push_back(topLL);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,1,0,0)); // Normal
-        face_vbo.push_back(top);
+        face_vbo.push_back(topUL);
     }
     // Bottom face
     if (faces[3]) {
@@ -411,22 +481,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
-        face_vbo.push_back(bot);
+        face_vbo.push_back(botUR);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
-        face_vbo.push_back(bot);
+        face_vbo.push_back(botLR);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
-        face_vbo.push_back(bot);
+        face_vbo.push_back(botLL);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,-1,0,0)); // Normal
-        face_vbo.push_back(bot);
+        face_vbo.push_back(botUL);
     }
     // Front face
     if (faces[4]) {
@@ -434,22 +504,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
-        face_vbo.push_back(sideTop);
+        face_vbo.push_back(sideUR);
         // LR
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
-        face_vbo.push_back(sideBot);
+        face_vbo.push_back(sideLR);
         // LL
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
-        face_vbo.push_back(sideBot);
+        face_vbo.push_back(sideLL);
         // UL
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,1,0)); // Normal
-        face_vbo.push_back(sideTop);
+        face_vbo.push_back(sideUL);
     }
     // Back face
     if (faces[5]) {
@@ -457,22 +527,22 @@ std::vector<glm::vec4> Chunk::createFacesWithUV(std::array<bool, 6> faces, int x
         face_vbo.push_back(translate * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
-        face_vbo.push_back(sideTop);
+        face_vbo.push_back(sideUR);
         // LR
         face_vbo.push_back(translate * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
-        face_vbo.push_back(sideBot);
+        face_vbo.push_back(sideLR);
         // LL
         face_vbo.push_back(translate * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
-        face_vbo.push_back(sideBot);
+        face_vbo.push_back(sideLL);
         // UL
         face_vbo.push_back(translate * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)); // Position
         face_vbo.push_back(color); // Color
         face_vbo.push_back(glm::vec4(0,0,-1,0)); // Normal
-        face_vbo.push_back(sideTop);
+        face_vbo.push_back(sideUL);
     }
 
     return face_vbo;

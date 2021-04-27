@@ -260,13 +260,13 @@ void ShaderProgram::drawInterleavedOpaque(Drawable &d, int t){
 
         if(attrUV != -1){
             context->glEnableVertexAttribArray(attrUV);
-            context->glVertexAttribPointer(attrUV, 2, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+            context->glVertexAttribPointer(attrUV, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
         }
 
-        if(animate != -1){
-            context->glEnableVertexAttribArray(animate);
-            context->glVertexAttribPointer(animate, 1, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(15/4 * sizeof(glm::vec4)));
-        }
+//        if(animate != -1){
+//            context->glEnableVertexAttribArray(animate);
+//            context->glVertexAttribPointer(animate, 1, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(15/4 * sizeof(glm::vec4)));
+//        }
     }
 
     d.bindIdx();
@@ -311,13 +311,13 @@ void ShaderProgram::drawInterleavedTrans(Drawable &d, int t){
 
         if(attrUV != -1){
             context->glEnableVertexAttribArray(attrUV);
-            context->glVertexAttribPointer(attrUV, 2, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+            context->glVertexAttribPointer(attrUV, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
         }
 
-        if(animate != -1){
-            context->glEnableVertexAttribArray(animate);
-            context->glVertexAttribPointer(animate, 1, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(15/4 * sizeof(glm::vec4)));
-        }
+//        if(animate != -1){
+//            context->glEnableVertexAttribArray(animate);
+//            context->glVertexAttribPointer(animate, 1, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(15/4 * sizeof(glm::vec4)));
+//        }
     }
 
     d.bindIdxTrans();

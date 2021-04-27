@@ -67,7 +67,7 @@ void Player::processInputs(InputBundle &inputs) {
     }
 
     //YAxis
-    if(true/*inFlight*/){
+    if(inFlight){
         //In-Flight
         if(inputs.qPressed){
             //Up
@@ -148,14 +148,14 @@ void Player::computePhysics(float dT, Terrain &terrain) {
         terrain.updateChunks();
     }
 
-    if(true/*inFlight*/){
+    if(inFlight){
         m_velocity *= 0.95f;
         m_velocity += m_acceleration * dT * 0.05f;
         glm::vec3 dP = m_velocity * dT;
-        glm::vec3 movevec = this->m_right * dP.x + this->m_up * dP.y + this->m_forward * dP.z;
-//        glm::vec3 movevec = glm::vec3(glm::rotate(glm::mat4(), glm::radians(m_camera.theta), glm::vec3(0.f, 1.f, 0.f))
-//                                      * glm::rotate(glm::mat4(), glm::radians(m_camera.phi), glm::vec3(1.f, 0.f, 0.f))
-//                                      * glm::vec4((m_velocity * dT * 0.001f), 1.f));
+        //glm::vec3 movevec = this->m_right * dP.x + this->m_up * dP.y + this->m_forward * dP.z;
+        glm::vec3 movevec = glm::vec3(glm::rotate(glm::mat4(), glm::radians(m_camera.theta), glm::vec3(0.f, 1.f, 0.f))
+                                      * glm::rotate(glm::mat4(), glm::radians(m_camera.phi), glm::vec3(1.f, 0.f, 0.f))
+                                      * glm::vec4((m_velocity * dT * 0.001f), 1.f));
         this->moveAlongVector(movevec);
     } else {
         glm::vec3 curPos = glm::floor(m_position);
