@@ -68,7 +68,7 @@ public:
     void bufferData(const std::vector<glm::vec4> &interleaved, const std::vector<GLuint> &idx);
     void bufferDataTrans(const std::vector<glm::vec4> &interleaved, const std::vector<GLuint> &idx);
     void create() override;
-    void create(std::vector<glm::vec4> &interleaved, std::vector<GLuint> &idx);
+    void create(std::vector<glm::vec4> &interleaved, std::vector<GLuint> &idx, std::vector<glm::vec4> &interleavedTrans, std::vector<GLuint> &idxTrans);
 
     // Fills chunk with procedural height field data
     void generateChunk(int x_offset, int z_offset);

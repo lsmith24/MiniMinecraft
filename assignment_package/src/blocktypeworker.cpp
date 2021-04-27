@@ -31,4 +31,5 @@ void BlockTypeWorker::run() {
         m_terrain->gen_chunks.push_back(std::move(chunks[i]));
     }
     mutex->unlock();
+
 }

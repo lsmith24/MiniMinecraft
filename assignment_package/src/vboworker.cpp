@@ -16,6 +16,6 @@ VBOData VBOWorker::getData() {
 }
 
 void VBOWorker::run() {
-    chunk->create(vbo_data.opaque_vertex, vbo_data.opaque_index);
+    chunk->create(vbo_data.opaque_vertex, vbo_data.opaque_index, vbo_data.trans_vertex, vbo_data.trans_index);
     completed = true;
 }

@@ -276,6 +276,7 @@ void Terrain::updateVBOs() {
     for(unsigned int i = 0; i < vbo_workers.size(); ++i) {
         if(vbo_workers[i]->isCompleted()) {
             vbo_workers[i]->getChunk()->bufferData(vbo_workers[i]->getData().opaque_vertex, vbo_workers[i]->getData().opaque_index);
+            vbo_workers[i]->getChunk()->bufferDataTrans(vbo_workers[i]->getData().trans_vertex, vbo_workers[i]->getData().trans_index);
             vbo_workers.erase(vbo_workers.begin() + i);
             --i;
         }

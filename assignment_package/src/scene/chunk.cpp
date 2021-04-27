@@ -638,7 +638,58 @@ void Chunk::create() {
 
 // Poor design, but this is just the duplicated create() that passes the results to vectors
 // instead of pushing it to VBOs so the threads can use the function.
-void Chunk::create(std::vector<glm::vec4> &interleaved, std::vector<GLuint> &idx) {
+void Chunk::create(std::vector<glm::vec4> &interleaved, std::vector<GLuint> &idx,
+                   std::vector<glm::vec4> &interleavedTrans, std::vector<GLuint> &idxTrans) {
+    // Interleaved takes the form pos0col0nor0pos1col1nor1...
+
+    // Loop through each block in the chunk array;
+    // check each neighbor of the block, and add a face
+    // for each neighbor that is EMPTY
+    for(int x = 0; x < 16; ++x) {
+        for(int y = 0; y < 256; ++y) {
+            for(int z = 0; z < 16; ++z) {
+                // Skip all empty blocks; they won't have faces to draw
+                if (getBlockAt(x, y, z) == EMPTY) {
+                    continue;
+                }
+                // Check which faces need to be drawn
+                std::array<bool, 6> faces = checkBlockFaces(x, y, z);
+                // Generate a vector of all the interleaved face data
+                //std::vector<glm::vec4> new_faces = createFaces(faces, x, y, z);
+                std::vector<glm::vec4> new_faces = createFacesWithUV(faces, x, y, z);
+                // Append this vector to the current interleaved
+                if(getBlockAt(x, y, z) == WATER || getBlockAt(x, y, z) == LAVA){
+                    interleavedTrans.insert(std::end(interleavedTrans), std::begin(new_faces), std::end(new_faces));
+                } else {
+                    interleaved.insert(std::end(interleaved), std::begin(new_faces), std::end(new_faces));
+                }
+
+            }
+        }
+    }
+    // Create the index buffer from the interleaved VBO
+
+    for(uint i = 0; i < interleavedTrans.size(); i +=4) {
+        idxTrans.push_back(i);
+        idxTrans.push_back(i+1);
+        idxTrans.push_back(i+2);
+        idxTrans.push_back(i);
+        idxTrans.push_back(i+2);
+        idxTrans.push_back(i+3);
+    }
+
+    for(uint i = 0; i < interleaved.size(); i +=4) {
+        idx.push_back(i);
+        idx.push_back(i+1);
+        idx.push_back(i+2);
+        idx.push_back(i);
+        idx.push_back(i+2);
+        idx.push_back(i+3);
+    }
+
+    // Don't generate this chunk again
+    generated = true;
+    /*
     // Interleaved takes the form pos0col0nor0pos1col1nor1...
 
     // Loop through each block in the chunk array;
@@ -672,6 +723,7 @@ void Chunk::create(std::vector<glm::vec4> &interleaved, std::vector<GLuint> &idx
 
     // Don't generate this chunk again
     generated = true;
+    */
 }
 
 // Builds procedural terrain for the chunk based on its offset
