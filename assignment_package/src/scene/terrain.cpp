@@ -118,7 +118,7 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
                       static_cast<unsigned int>(y),
                       static_cast<unsigned int>(z - chunkOrigin.y),
                       t);
-        c->create();
+//        c->create(); // TODO: Adjust code elsewhere so that create() need not be called every setBlockAt().
     }
     else {
         throw std::out_of_range("Coordinates " + std::to_string(x) +
