@@ -279,6 +279,13 @@ const vec3 dusk[5] = vec3[](vec3(144, 96, 144) / 255.0,
                             vec3(48, 24, 96) / 255.0,
                             vec3(0, 24, 72) / 255.0);
 
+//Day palette
+const vec3 day[5] = vec3[](vec3(230, 230, 250) / 255.0,
+                            vec3(124, 202, 247) / 255.0,
+                            vec3(23, 171, 255) / 255.0,
+                            vec3(43, 124, 171) / 255.0,
+                            vec3(42, 60, 117) / 255.0);
+
 const vec3 sunColor = vec3(255, 255, 190) / 255.0;
 const vec3 moonColor = vec3(210, 220, 230) / 255.0;
 const vec3 cloudColor = sunset[3];
@@ -334,6 +341,25 @@ vec3 uvToDusk(vec2 uv) {
         return mix(dusk[3], dusk[4], (uv.y - 0.65) / 0.1);
     }
     return dusk[4];
+}
+
+vec3 uvToDay(vec2 uv) {
+    if(uv.y < 0.5) {
+        return day[0];
+    }
+    else if(uv.y < 0.55) {
+        return mix(day[0], day[1], (uv.y - 0.5) / 0.05);
+    }
+    else if(uv.y < 0.6) {
+        return mix(day[1], day[2], (uv.y - 0.55) / 0.05);
+    }
+    else if(uv.y < 0.65) {
+        return mix(day[2], day[3], (uv.y - 0.6) / 0.05);
+    }
+    else if(uv.y < 0.75) {
+        return mix(day[3], day[4], (uv.y - 0.65) / 0.1);
+    }
+    return day[4];
 }
 
 vec2 random2( vec2 p ) {
@@ -442,6 +468,7 @@ void main()
     // Compute a gradient from the bottom of the sky-sphere to the top
     vec3 sunsetColor = uvToSunset(uv + offset * 0.1);
     vec3 duskColor = uvToDusk(uv + offset * 0.1);
+    vec3 dayColor = uvToDay(uv + offset * 0.1);
 
     outColor = vec4(sunsetColor, 1.0);
 
@@ -471,14 +498,16 @@ void main()
     else {
         float raySunDot = dot(rayDir, sunDir);
 #define SUNSET_THRESHOLD 0.75
+#define DAY_THRESHOLD 0.5
 #define DUSK_THRESHOLD -0.1
         if(raySunDot > SUNSET_THRESHOLD) {
             // Do nothing, sky is already correct color
-        }
-        // Any dot product between 0.75 and -0.1 is a LERP b/t sunset and dusk color
-        else if(raySunDot > DUSK_THRESHOLD) {
-            float t = (raySunDot - SUNSET_THRESHOLD) / (DUSK_THRESHOLD - SUNSET_THRESHOLD);
-            outColor = vec4(mix(outColor.xyz, duskColor, t), 1);
+        } else if (raySunDot > DAY_THRESHOLD && raySunDot < SUNSET_THRESHOLD) {
+            float t = (raySunDot - SUNSET_THRESHOLD) / (DAY_THRESHOLD - SUNSET_THRESHOLD);
+            outColor = vec4(mix(outColor.xyz, dayColor, t), 1);
+        } else if(raySunDot > DUSK_THRESHOLD && raySunDot < DAY_THRESHOLD) {
+            float t = (raySunDot - DAY_THRESHOLD) / (DUSK_THRESHOLD - DAY_THRESHOLD);
+            outColor = vec4(mix(dayColor.xyz, duskColor, t), 1);
         }
         // Any dot product <= -0.1 are pure dusk color
         else {

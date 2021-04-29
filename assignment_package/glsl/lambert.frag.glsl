@@ -98,12 +98,60 @@ vec3 rotateSun(vec3 pt, float angle) {
     return vec3(pt.x, c * pt.y - s * pt.z, s * pt.y + c * pt.z);
 }
 
+vec3 uvToSunset(vec2 uv) {
+    if(uv.y < 0.5) {
+        return sunset[0];
+    }
+    else if(uv.y < 0.55) {
+        return mix(sunset[0], sunset[1], (uv.y - 0.5) / 0.05);
+    }
+    else if(uv.y < 0.6) {
+        return mix(sunset[1], sunset[2], (uv.y - 0.55) / 0.05);
+    }
+    else if(uv.y < 0.65) {
+        return mix(sunset[2], sunset[3], (uv.y - 0.6) / 0.05);
+    }
+    else if(uv.y < 0.75) {
+        return mix(sunset[3], sunset[4], (uv.y - 0.65) / 0.1);
+    }
+    return sunset[4];
+}
+
+vec3 uvToDusk(vec2 uv) {
+    if(uv.y < 0.5) {
+        return dusk[0];
+    }
+    else if(uv.y < 0.55) {
+        return mix(dusk[0], dusk[1], (uv.y - 0.5) / 0.05);
+    }
+    else if(uv.y < 0.6) {
+        return mix(dusk[1], dusk[2], (uv.y - 0.55) / 0.05);
+    }
+    else if(uv.y < 0.65) {
+        return mix(dusk[2], dusk[3], (uv.y - 0.6) / 0.05);
+    }
+    else if(uv.y < 0.75) {
+        return mix(dusk[3], dusk[4], (uv.y - 0.65) / 0.1);
+    }
+    return dusk[4];
+}
+
+vec2 sphereToUV(vec3 p) {
+    float phi = atan(p.z, p.x);
+    if(phi < 0) {
+        phi += TWO_PI;
+    }
+    float theta = acos(p.y);
+    return vec2(1 - phi / TWO_PI, 1 - theta / PI);
+}
 
 void main()
 {
     // Material base color (before shading)
     vec4 diffuseColor = fs_Col;
+
     vec4 uv = fs_UV;
+
     if (uv.z > 0.0f) {
         if (fs_Nor[0] != 0.0f || fs_Nor[2] != 0.0f) {
             uv = vec4(uv.x + mod(u_Time / 8000.f, 1.f / 16.f), uv.y, uv.z, uv.w);
@@ -120,7 +168,7 @@ void main()
     if (sunDir.y > 0.1) {
         diffuseTerm = dot(normalize(fs_Nor), normalize(vec4(sunDir, 1.0)));
     } else if (sunDir.y < -0.1) {
-        diffuseTerm = dot(normalize(fs_Nor), normalize(vec4(-1.0*sunDir, 1.0)));
+        diffuseTerm = dot(normalize(fs_Nor), normalize(vec4(-1.0 * sunDir, 1.0)));
         diffuseTerm *= 0.1;
     } else {
         float diffuseTermSun = dot(normalize(fs_Nor), normalize(vec4(sunDir, 1.0)));
