@@ -424,9 +424,6 @@ float worleyFBM(vec3 uv) {
     return sum;
 }
 
-////#define RAY_AS_COLOR
-////#define SPHERE_UV_AS_COLOR
-#define WORLEY_OFFSET
 
 void main()
 {
@@ -439,27 +436,8 @@ void main()
     p = /*Inverse of*/ u_ViewProj * p; // Convert from unhomogenized screen to world
 
     vec3 rayDir = normalize(p.xyz - u_Eye);
-
-#ifdef RAY_AS_COLOR
-    outColor = vec4(0.5 * (rayDir + vec3(1,1,1)), 1);
-    return;
-#endif
-
     vec2 uv = sphereToUV(rayDir);
-#ifdef SPHERE_UV_AS_COLOR
-    outColor = vec4(uv, 0, 1);
-    return;
-#endif
-
-
     vec2 offset = vec2(0.0);
-#ifdef WORLEY_OFFSET
-//    // Get a noise value in the range [-1, 1]
-//    // by using Worley noise as the noise basis of FBM
-//    offset = vec2(worleyFBM(rayDir));
-//    offset *= 2.0;
-//    offset -= vec2(1.0);
-#endif
 
     // Compute a gradient from the bottom of the sky-sphere to the top
     vec3 sunsetColor = uvToSunset(uv + offset * 0.1);
@@ -504,8 +482,6 @@ void main()
         }
         // Any dot product <= -0.1 are pure dusk color
         else {
-//            float t = (raySunDot - SUNSET_THRESHOLD) / (DUSK_THRESHOLD - SUNSET_THRESHOLD);
-//            outColor = vec4(mix(outColor.xyz, duskColor, t), 1);
             outColor = vec4(duskColor, 1);
         }
     }

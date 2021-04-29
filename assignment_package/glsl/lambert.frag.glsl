@@ -27,6 +27,26 @@ in vec4 fs_UV;
 out vec4 out_Col; // This is the final output color that you will see on your
 // screen for the pixel that is currently being processed.
 
+const float PI = 3.14159265359;
+const float TWO_PI = 6.28318530718;
+
+// Sunset palette
+const vec3 sunset[5] = vec3[](vec3(255, 229, 119) / 255.0,
+                               vec3(254, 192, 81) / 255.0,
+                               vec3(255, 137, 103) / 255.0,
+                               vec3(253, 96, 81) / 255.0,
+                               vec3(57, 32, 51) / 255.0);
+// Dusk palette
+const vec3 dusk[5] = vec3[](vec3(144, 96, 144) / 255.0,
+                            vec3(96, 72, 120) / 255.0,
+                            vec3(72, 48, 120) / 255.0,
+                            vec3(48, 24, 96) / 255.0,
+                            vec3(0, 24, 72) / 255.0);
+
+const vec3 sunColor = vec3(255, 255, 190) / 255.0;
+const vec3 moonColor = vec3(210, 220, 230) / 255.0;
+const vec3 cloudColor = sunset[3];
+
 float random1(vec3 p) {
     return fract(sin(dot(p,vec3(127.1, 311.7, 191.999)))
                  *43758.5453);
@@ -72,6 +92,13 @@ float fbm(vec3 p) {
     return sum;
 }
 
+vec3 rotateSun(vec3 pt, float angle) {
+    float s = sin(-1 * angle);
+    float c = cos(-1 * angle);
+    return vec3(pt.x, c * pt.y - s * pt.z, s * pt.y + c * pt.z);
+}
+
+
 void main()
 {
     // Material base color (before shading)
@@ -88,8 +115,19 @@ void main()
     //diffuseColor = diffuseColor * (0.5 * fbm(fs_Pos.xyz) + 0.5);
     diffuseColor = texture(u_Texture, vec2(uv.x, uv.y));
 
+    vec3 sunDir = normalize(rotateSun(vec3(0, 0.1, 1.0), u_Time * 0.005));
+    float diffuseTerm = 0;
+    if (sunDir.y > 0.1) {
+        diffuseTerm = dot(normalize(fs_Nor), normalize(vec4(sunDir, 1.0)));
+    } else if (sunDir.y < -0.1) {
+        diffuseTerm = dot(normalize(fs_Nor), normalize(vec4(-1.0*sunDir, 1.0)));
+        diffuseTerm *= 0.1;
+    } else {
+        float diffuseTermSun = dot(normalize(fs_Nor), normalize(vec4(sunDir, 1.0)));
+    }
+
     // Calculate the diffuse term for Lambert shading
-    float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
+    //float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
     // Avoid negative lighting values
     diffuseTerm = clamp(diffuseTerm, 0, 1);
 
