@@ -158,7 +158,10 @@ void MyGL::paintGL() {
         // Static cast for now
         Goblin* g = static_cast<Goblin*>(e.get());
         EntityNode* root = g->getRoot();
-        paintRecursive(root, glm::mat4());
+        // Only draw if they are within a certain xz distance (64 blocks for now)
+        if (abs(m_player.mcr_position.x - root->t_x) < 64 && abs(m_player.mcr_position.z - root->t_z) < 64) {
+            paintRecursive(root, glm::mat4());
+        }
         m_progLambert.setModelMatrix(glm::mat4());
     }
 }
@@ -235,6 +238,9 @@ void MyGL::keyPressEvent(QKeyEvent *e) {
                 std::cout << "Could not find path" << std::endl;
             }
         }
+    } else if (e->key()  == Qt::Key_U) {
+        // Add a goblin where the player is standing
+        entities.push_back(mkU<Goblin>(Goblin(this, m_terrain, m_player.mcr_position)));
     }
 
 }
