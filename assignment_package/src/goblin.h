@@ -54,6 +54,8 @@ public:
 
     EntityNode* getRoot();
 
+    std::string getType() override;
+
     // Entity will try to path to stand on the block at (x, y, z)
     bool findPath(int x, int y, int z);
 

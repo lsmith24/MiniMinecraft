@@ -34,6 +34,9 @@ public:
     // To be called by MyGL::tick()
     virtual void tick(float dT, InputBundle &input) = 0;
 
+    // Determines the type of the entity for casting purposes
+    virtual std::string getType();
+
     // Translate along the given vector
     virtual void moveAlongVector(glm::vec3 dir);
 

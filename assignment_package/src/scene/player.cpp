@@ -171,7 +171,7 @@ void Player::computePhysics(float dT, Terrain &terrain) {
         jumping = false;
         glm::vec3 movevec = glm::vec3(glm::rotate(glm::mat4(), glm::radians(m_camera.theta), glm::vec3(0.f, 1.f, 0.f))
                                       * glm::vec4((m_velocity * dT * 0.001f), 1.f));
-        //std::cout << movevec[0] << " " << movevec[1] << " " << movevec[2] << std::endl;
+
         glm::vec3 mVec = movevec;
         float oDist = 0.f;
         glm::ivec3 blockHit = glm::ivec3();

@@ -15,6 +15,9 @@ Entity::Entity(const Entity &e)
 Entity::~Entity()
 {}
 
+std::string Entity::getType() {
+    return "NONE";
+}
 
 void Entity::moveAlongVector(glm::vec3 dir) {
     m_position += dir;

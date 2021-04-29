@@ -35,6 +35,10 @@ EntityNode* Goblin::getRoot() {
     return root.get();
 }
 
+std::string Goblin::getType() {
+    return "GOBLIN";
+}
+
 void Goblin::buildGeometry() {
     // Use the cube drawable utilized by the base program
     // to draw the entity

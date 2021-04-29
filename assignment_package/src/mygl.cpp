@@ -155,14 +155,16 @@ void MyGL::paintGL() {
 
     // Draw entities (test)
     for(const uPtr<Entity>& e: entities) {
-        // Static cast for now
-        Goblin* g = static_cast<Goblin*>(e.get());
-        EntityNode* root = g->getRoot();
-        // Only draw if they are within a certain xz distance (64 blocks for now)
-        if (abs(m_player.mcr_position.x - root->t_x) < 64 && abs(m_player.mcr_position.z - root->t_z) < 64) {
-            paintRecursive(root, glm::mat4());
+        // Only type is setup for goblin
+        if (e->getType() == "GOBLIN") {
+            Goblin* g = static_cast<Goblin*>(e.get());
+            EntityNode* root = g->getRoot();
+            // Only draw if they are within a certain xz distance (64 blocks for now)
+            if (abs(m_player.mcr_position.x - root->t_x) < 64 && abs(m_player.mcr_position.z - root->t_z) < 64) {
+                paintRecursive(root, glm::mat4());
+            }
+            m_progLambert.setModelMatrix(glm::mat4());
         }
-        m_progLambert.setModelMatrix(glm::mat4());
     }
 }
 
