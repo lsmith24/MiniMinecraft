@@ -35,10 +35,10 @@ void Player::processInputs(InputBundle &inputs) {
     bool zActive = false;
     if(inputs.wPressed){
         //Forward
-        m_acceleration.z = inFlight ? 25.f : 20.f;
+        m_acceleration.z = inFlight ? 1.f : 0.5f;
     } else if (inputs.sPressed){
         //Backwards
-        m_acceleration.z = inFlight ? -25.f : -20.f;
+        m_acceleration.z = inFlight ? -1.f : -0.5f;
     } else if (!inputs.wPressed && !inputs.sPressed) {
         //Both False
         m_acceleration.z = 0.f;
@@ -52,10 +52,10 @@ void Player::processInputs(InputBundle &inputs) {
     //X Axis
     if(inputs.dPressed){
         //Right
-        m_acceleration.x = inFlight ? -25.f : -20.f;
+        m_acceleration.x = inFlight ? -1.f : -0.5f;
     } else if (inputs.aPressed) {
         //Left
-        m_acceleration.x = inFlight ? 25.f : 20.f;
+        m_acceleration.x = inFlight ? 1.f : 0.5f;
     } else if (!inputs.dPressed && !inputs.aPressed){
         //Both False
         m_acceleration.x = 0.f;
@@ -71,10 +71,10 @@ void Player::processInputs(InputBundle &inputs) {
         //In-Flight
         if(inputs.qPressed){
             //Up
-            m_acceleration.y = 25.f;
+            m_acceleration.y = 0.5f;
         }else if(inputs.ePressed){
             //Down
-            m_acceleration.y = -25.f;
+            m_acceleration.y = -0.5f;
         }else if (!inputs.qPressed && !inputs.ePressed){
             //Both False
             m_acceleration.y = 0.f;
@@ -113,7 +113,7 @@ void Player::processInputs(InputBundle &inputs) {
 }
 
 void Player::computePhysics(float dT, Terrain &terrain) {
-    dT = glm::min(dT, 1.f);
+    //dT = glm::min(dT, 1.f);
     //Block
     //Destory
     if(destroyBlock){
@@ -163,6 +163,8 @@ void Player::computePhysics(float dT, Terrain &terrain) {
                 m_position.y - curPos.y >= 0.01f){
             m_velocity *= 0.95f;
             m_acceleration.y = -50.f;
+        }  else if(terrain.getBlockAt(curPos.x, curPos.y - 1, curPos.z) == WATER) {
+            m_velocity *= 0.6f;
         } else {
             m_velocity *= 0.9f;
         }
@@ -176,7 +178,7 @@ void Player::computePhysics(float dT, Terrain &terrain) {
 
         if(jumping && terrain.getBlockAt(curPos.x, curPos.y - 1, curPos.z) != EMPTY
                 && m_position.y - curPos.y < 0.01f){
-            m_velocity.y += 30.0f;
+            m_velocity.y += 20.0f;
         }
         jumping = false;
         glm::vec3 movevec = glm::vec3(glm::rotate(glm::mat4(), glm::radians(m_camera.theta), glm::vec3(0.f, 1.f, 0.f))

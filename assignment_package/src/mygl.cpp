@@ -201,7 +201,8 @@ void MyGL::keyPressEvent(QKeyEvent *e) {
     } else if (e->key() == Qt::Key_Space) {
         m_inputs.spacePressed = true;
     } else if (e->key() == Qt::Key_F) {
-        m_inputs.fPressed = true;
+        m_inputs.fPressed = !m_inputs.fPressed;
+        //m_inputs.fPressed = true;
         //m_player.flipFlightMode();
     }
 }
@@ -222,7 +223,7 @@ void MyGL::keyReleaseEvent(QKeyEvent *e) {
     } else if (e->key() == Qt::Key_Space) {
         m_inputs.spacePressed = false;
     } else if (e->key() == Qt::Key_F) {
-        m_inputs.fPressed = false;
+        //m_inputs.fPressed = false;
     }
 }
 
