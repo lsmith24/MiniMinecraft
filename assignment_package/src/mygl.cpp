@@ -10,6 +10,7 @@ MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       m_worldAxes(this),
       m_progLambert(this), m_progFlat(this),
+      skyBox(this), m_progSky(this),
       m_terrain(this), m_player(glm::vec3(48.f, 140.f, 48.f), m_terrain),
       lastFrame(QDateTime::currentMSecsSinceEpoch()),
       m_texture(this), m_time(0.f)
@@ -61,6 +62,8 @@ void MyGL::initializeGL()
     m_progLambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
     // Create and set up the flat lighting shader
     m_progFlat.create(":/glsl/flat.vert.glsl", ":/glsl/flat.frag.glsl");
+    // Create and set up sky shader
+    m_progSky.create(":/glsl/skycycle.vert.glsl", ":/glsl/skycycle.frag.glsl");
 
     // Set a color with which to draw geometry.
     // This will ultimately not be used when you change
@@ -79,6 +82,7 @@ void MyGL::initializeGL()
     m_texture.load(0);
 
     // Test scene no longer needed; delete later
+    skyBox.create();
     m_terrain.CreateTestScene();
 }
 
@@ -89,9 +93,13 @@ void MyGL::resizeGL(int w, int h) {
     glm::mat4 viewproj = m_player.mcr_camera.getViewProj();
 
     // Upload the view-projection matrix to our shaders (i.e. onto the graphics card)
-
     m_progLambert.setViewProjMatrix(viewproj);
     m_progFlat.setViewProjMatrix(viewproj);
+    m_progSky.setViewProjMatrix(glm::inverse(viewproj));
+    m_progSky.useMe();
+    this->glUniform2i(m_progSky.unifDimensions, width() * devicePixelRatio(), height() * devicePixelRatio());
+    this->glUniform3f(m_progSky.unifEye, m_player.mcr_camera.mcr_position.x,
+                      m_player.mcr_camera.mcr_position.y, m_player.mcr_camera.mcr_position.z);
 
     printGLErrorLog();
 }
@@ -133,6 +141,17 @@ void MyGL::paintGL() {
 
     m_progFlat.setViewProjMatrix(m_player.mcr_camera.getViewProj());
     m_progLambert.setViewProjMatrix(m_player.mcr_camera.getViewProj());
+
+//    m_progSky.setEye(m_player.mcr_camera.mcr_position);
+//    m_progSky.setTime(m_time);
+//    m_progSky.setDimensions(width() * devicePixelRatio(), height() * devicePixelRatio());
+
+    m_progSky.setViewProjMatrix(glm::inverse(m_player.mcr_camera.getViewProj()));
+    m_progSky.useMe();
+    this->glUniform3f(m_progSky.unifEye, m_player.mcr_camera.mcr_position.x,
+                      m_player.mcr_camera.mcr_position.y, m_player.mcr_camera.mcr_position.z);
+    this->glUniform1f(m_progSky.unifTime, m_time);
+    m_progSky.draw(skyBox);
 
     m_texture.bind(0);
     m_terrain.setTime(m_time);

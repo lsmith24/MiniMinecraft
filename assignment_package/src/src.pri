@@ -7,6 +7,7 @@ SOURCES += \
     $$PWD/mainwindow.cpp \
     $$PWD/mygl.cpp \
     $$PWD/scene/river.cpp \
+    $$PWD/scene/sky.cpp \
     $$PWD/scene/turtle.cpp \
     $$PWD/shaderprogram.cpp \
     $$PWD/drawable.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     $$PWD/mainwindow.h \
     $$PWD/mygl.h \
     $$PWD/scene/river.h \
+    $$PWD/scene/sky.h \
     $$PWD/scene/turtle.h \
     $$PWD/shaderprogram.h \
     $$PWD/drawable.h \

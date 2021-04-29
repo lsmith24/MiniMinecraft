@@ -7,12 +7,14 @@
 #include "scene/camera.h"
 #include "scene/terrain.h"
 #include "scene/player.h"
+#include "scene/sky.h"
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 #include <smartpointerhelp.h>
 #include <QDateTime>
 #include "texture.h"
+
 
 
 class MyGL : public OpenGLContext
@@ -22,6 +24,8 @@ private:
     WorldAxes m_worldAxes; // A wireframe representation of the world axes. It is hard-coded to sit centered at (32, 128, 32).
     ShaderProgram m_progLambert;// A shader program that uses lambertian reflection
     ShaderProgram m_progFlat;// A shader program that uses "flat" reflection (no shadowing at all)
+    Sky skyBox;
+    ShaderProgram m_progSky; //shader program for skybox
 
     GLuint vao; // A handle for our vertex array object. This will store the VBOs created in our geometry classes.
     // Don't worry too much about this. Just know it is necessary in order to render geometry.

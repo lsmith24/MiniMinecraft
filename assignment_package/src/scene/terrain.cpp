@@ -224,7 +224,7 @@ void Terrain::CreateTestScene() {
     }
 
     River river = River(this, 0, 0);
-    river.makeRiver();
+//    river.makeRiver();
     for (const auto& [key, value] : m_chunks) {
         value->create();
     }

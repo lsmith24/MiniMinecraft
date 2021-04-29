@@ -28,6 +28,9 @@ public:
     int unifTexture;
     int unifTime;
 
+    int unifDimensions;
+    int unifEye;
+
 public:
     ShaderProgram(OpenGLContext* context);
     // Sets up the requisite GL data and shaders from the given .glsl files
@@ -38,6 +41,9 @@ public:
     void setModelMatrix(const glm::mat4 &model);
     // Pass the given Projection * View matrix to this shader on the GPU
     void setViewProjMatrix(const glm::mat4 &vp);
+    void setEye(const glm::vec3 &eye);
+    void setDimensions(int w, int h);
+    void setTime(int t);
     // Pass the given color to this shader on the GPU
     void setGeometryColor(glm::vec4 color);
     // Draw the given object to our screen using this ShaderProgram's shaders
