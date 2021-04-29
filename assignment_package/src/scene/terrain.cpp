@@ -216,6 +216,7 @@ void Terrain::CreateTestScene() {
             }
         }
     }
+
     std::cout << "Finished creating base scene in " << (QDateTime::currentMSecsSinceEpoch() - start_time) / 1000.0f << " seconds" << std::endl;
 }
 

@@ -3,6 +3,8 @@ DEPENDPATH += $$PWD
 
 SOURCES += \
     $$PWD/blocktypeworker.cpp \
+    $$PWD/entitynode.cpp \
+    $$PWD/goblin.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/mygl.cpp \
@@ -22,6 +24,8 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/blocktypeworker.h \
+    $$PWD/entitynode.h \
+    $$PWD/goblin.h \
     $$PWD/mainwindow.h \
     $$PWD/mygl.h \
     $$PWD/shaderprogram.h \

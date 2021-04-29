@@ -7,6 +7,7 @@
 #include "scene/camera.h"
 #include "scene/terrain.h"
 #include "scene/player.h"
+#include "goblin.h"
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
@@ -31,6 +32,9 @@ private:
 
     QTimer m_timer; // Timer linked to tick(). Fires approximately 60 times per second.
     long long lastFrame;
+
+    // Entities to be rendered in the world
+    std::vector< uPtr<Entity> > entities;
 
     void moveMouseToCenter(); // Forces the mouse position to the screen's center. You should call this
                               // from within a mouse move event after reading the mouse movement so that
@@ -57,6 +61,9 @@ public:
     // Called from paintGL().
     // Calls Terrain::draw().
     void renderTerrain();
+
+    // Draws an entity recursively through the scene graph
+    void paintRecursive(EntityNode* n, glm::mat4 transformation);
 
 protected:
     // Automatically invoked when the user

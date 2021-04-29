@@ -70,8 +70,11 @@ void MyGL::initializeGL()
     // using multiple VAOs, we can just bind one once.
     glBindVertexArray(vao);
 
-    // Test scene no longer needed; delete later
     m_terrain.CreateTestScene();
+
+    // Test goblin
+    entities.push_back(mkU<Goblin>(Goblin(this, m_terrain, glm::vec3(49.5f, 150.0f, 20.5f))));
+    entities.push_back(mkU<Goblin>(Goblin(this, m_terrain, glm::vec3(44.5f, 150.0f, 18.5f))));
 }
 
 void MyGL::resizeGL(int w, int h) {
@@ -100,6 +103,9 @@ void MyGL::tick() {
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     long long currframe = QDateTime::currentMSecsSinceEpoch();
     m_player.tick(currframe - lastFrame, m_inputs);
+    for(const uPtr<Entity> &e : entities) {
+        e->tick(currframe - lastFrame, m_inputs);
+    }
     lastFrame = currframe;
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
 }
@@ -114,6 +120,19 @@ void MyGL::sendPlayerDataToGUI() const {
     glm::ivec2 zone(64 * glm::ivec2(glm::floor(pPos / 64.f)));
     emit sig_sendPlayerChunk(QString::fromStdString("( " + std::to_string(chunk.x) + ", " + std::to_string(chunk.y) + " )"));
     emit sig_sendPlayerTerrainZone(QString::fromStdString("( " + std::to_string(zone.x) + ", " + std::to_string(zone.y) + " )"));
+}
+
+void MyGL::paintRecursive(EntityNode* n, glm::mat4 transformation) {
+    transformation = transformation * n->transformationMatrix();
+    if (n->draw) {
+        m_progLambert.setModelMatrix(transformation);
+        m_progLambert.draw(n->square);
+    }
+
+    // Recursively repeat for this node's children
+    for(const uPtr<EntityNode> &new_n : n->children) {
+        paintRecursive(new_n.get(), transformation);
+    }
 }
 
 // This function is called whenever update() is called.
@@ -133,6 +152,15 @@ void MyGL::paintGL() {
     m_progFlat.setViewProjMatrix(m_player.mcr_camera.getViewProj());
     m_progFlat.draw(m_worldAxes);
     glEnable(GL_DEPTH_TEST);
+
+    // Draw entities (test)
+    for(const uPtr<Entity>& e: entities) {
+        // Static cast for now
+        Goblin* g = static_cast<Goblin*>(e.get());
+        EntityNode* root = g->getRoot();
+        paintRecursive(root, glm::mat4());
+        m_progLambert.setModelMatrix(glm::mat4());
+    }
 }
 
 // Renders the nine zones of generated
@@ -171,7 +199,44 @@ void MyGL::keyPressEvent(QKeyEvent *e) {
         m_inputs.spacePressed = true;
     } else if (e->key() == Qt::Key_F) {
         m_inputs.fPressed = true;
+    } else if (e->key() == Qt::Key_P) {
+        // Create "pathing play pen"; a container with walls
+        for (int x = 0; x < 16; ++x) {
+            for(int y = 0; y < 256; ++y) {
+                m_terrain.setBlockAt(x, y, 0, STONE);
+                m_terrain.setBlockAt(x, y, 15, STONE);
+                m_terrain.setBlockAt(0, y, x, STONE);
+                m_terrain.setBlockAt(15, y, x, STONE);
+            }
+        }
+        // Create walls within the pen
+        for (int x = 0; x < 16; ++x) {
+            for(int y = 0; y < 135; ++y) {
+                m_terrain.setBlockAt(x + 2, y, x, STONE);
+            }
+        }
+        // Create the "goal" that goblin will move towards
+        m_terrain.setBlockAt(6, 129, 1, SNOW);
+
+        m_terrain.getChunkAt(0, 0)->destroy();
+        m_terrain.getChunkAt(0, 0)->create();
+
+        // Make the goblin and path to test
+        entities.push_back(mkU<Goblin>(Goblin(this, m_terrain, glm::vec3(2.0f, 150.0f, 2.0f))));
+        Goblin* g = static_cast<Goblin*>(entities.back().get());
+        g->findPath(6, 129, 1);
+    } else if (e->key() == Qt::Key_O) {
+        // Attracts nearby goblins (< 10 blocks)
+        for(const uPtr<Entity>& e: entities) {
+            // Static cast for now
+            Goblin* g = static_cast<Goblin*>(e.get());
+            bool res = g->findPath(int(m_player.mcr_position.x), int(m_player.mcr_position.y), int(m_player.mcr_position.z));
+            if(!res) {
+                std::cout << "Could not find path" << std::endl;
+            }
+        }
     }
+
 }
 
 void MyGL::keyReleaseEvent(QKeyEvent *e) {
